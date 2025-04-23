@@ -69,14 +69,21 @@ int APIENTRY WinMain(
     // --------------------------------Read flags------------------------------- \\
     // ------------------------------------------------------------------------- \\ 
 
+    HANDLE hProc = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, procId);
+
     while (!pFlags->exit)
     {
-        Sleep(10);
+        DWORD exitCode = 0;
+        if (!GetExitCodeProcess(hProc, &exitCode) || exitCode != STILL_ACTIVE)
+            break;
+
         if (pFlags->glowESP)
         {
             GlowESP();
             pFlags->glowESP = false;
         }
+
+        Sleep(10);
     }
 
     // ------------------------------------------------------------------------- \\
