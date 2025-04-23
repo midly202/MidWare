@@ -1,7 +1,5 @@
 #include "functions.h"
 
-const char* GlowEsp = "D:\\GlowESP\\ExtBytePatch.exe";
-
 int APIENTRY WinMain(
     _In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,

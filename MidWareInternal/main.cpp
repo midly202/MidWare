@@ -13,9 +13,6 @@ Settings* settings = NULL;
 WeaponComponent* weaponComponent = NULL;
 ESP* esp = NULL;
 
-// CHANGE THIS ACCORDINGLY!
-const char* GlowEsp = "D:\\GlowESP\\ExtBytePatch.exe";
-
 bool noRecoilEnabled = false;
 bool fireRateEnabled = false;
 bool infiniteAmmoEnabled = false;
