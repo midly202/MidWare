@@ -24,7 +24,10 @@ The CLI shows the current status of all toggles (ON/OFF) and updates live as hot
 |   [5]   | InstaKill          | Makes every bullet lethal — 1 shot, 1 kill.                                |
 |   [6]   | Speedy Gonzales    | Increases player movement speed.                                           |
 |   [7]   | Fisheye FOV        | Modifies player and weapon FOV for a fisheye-style effect.                 |
-|   [8]   | Glow ESP           | Outlines enemies through obstacles.                                        |
+|   [8]   | Remove Sky         | Removes the current skybox.                                                |
+|   [F1]  | Glow ESP           | Highlights enemies through walls and smoke.                                |
+|   [F2]  | Run and Shoot      | Allows sprinting in any direction, while crouched, or while shooting.      |
+|   [F3]  | Kali Bolt Script   | Removes the bolt action on Kali's sniper, making it fully automatic.       |
 
 ---
 
