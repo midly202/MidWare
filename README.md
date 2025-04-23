@@ -1,4 +1,4 @@
-# MidWare
+# 🖥️ MidWare
 
 An advanced cheat for **Rainbow Six Siege**, specifically designed for the **November 17th Shadow Legacy** build.
 
@@ -8,6 +8,8 @@ This project is split into two components:
   Responsible for DLL injection and applying external-only features that are blocked internally.
 - **Internal DLL**  
   Hosts the main CLI menu and all internal memory modifications.
+
+The CLI shows the current status of all toggles (ON/OFF) and updates live as hotkeys are pressed.
 
 ---
 
@@ -23,12 +25,6 @@ This project is split into two components:
 |   [6]   | Speedy Gonzales    | Increases player movement speed.                                           |
 |   [7]   | Fisheye FOV        | Modifies player and weapon FOV for a fisheye-style effect.                 |
 |   [8]   | Glow ESP           | Outlines enemies through obstacles.                                        |
-
----
-
-## 🖥️ In-Game Menu
-
-The CLI shows the current status of all toggles (ON/OFF) and updates live as hotkeys are pressed.
 
 ---
 
