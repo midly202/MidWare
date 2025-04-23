@@ -31,8 +31,11 @@ int APIENTRY WinMain(
     struct internalFlags
     {
         bool glowESP;
-        bool runAndShoot;
+        bool runShoot;
+        bool boltScript;
         bool exit;
+        uintptr_t runShootAddy1;
+        uintptr_t runShootAddy2;
     };
 
     HANDLE hMapFile = CreateFileMapping(
@@ -60,7 +63,8 @@ int APIENTRY WinMain(
     // ------------------------------------------------------------------------- \\ 
 
     pFlags->glowESP = false;
-    pFlags->runAndShoot = false;
+    pFlags->runShoot = false;
+    pFlags->boltScript = false;
     pFlags->exit = false;
 
     // ------------------------------------------------------------------------- \\
@@ -79,6 +83,16 @@ int APIENTRY WinMain(
         {
             GlowESP();
             pFlags->glowESP = false;
+        }
+        else if (pFlags->runShoot)
+        {
+            RunShoot(pFlags->runShootAddy1, pFlags->runShootAddy2);
+            pFlags->runShoot = false;
+        }
+        else if (pFlags->boltScript)
+        {
+            BoltScript();
+            pFlags->boltScript = false;
         }
 
         Sleep(10);

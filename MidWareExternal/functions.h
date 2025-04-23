@@ -6,6 +6,7 @@
 #include <commdlg.h>
 #include <string>
 #include <Psapi.h>
+#include <vector>
 
 // ------------------------------------------------------------------------- \\
 // --------------------------------Injection-------------------------------- \\
@@ -98,6 +99,42 @@ std::string GetDLLPath()
 // -------------------------------ExtBytePatch------------------------------ \\
 // ------------------------------------------------------------------------- \\ 
 
+void MsgBoxAddy(uintptr_t addy)
+{
+    char szAddressOnly[32];
+    sprintf_s(szAddressOnly, "%016llX", addy);
+
+    const size_t len = strlen(szAddressOnly) + 1;
+    HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, len);
+    if (hMem)
+    {
+        void* pMem = GlobalLock(hMem);
+        if (pMem)  // Check if GlobalLock succeeded
+        {
+            memcpy(pMem, szAddressOnly, len);
+            GlobalUnlock(hMem);
+            OpenClipboard(0);
+            EmptyClipboard();
+            SetClipboardData(CF_TEXT, hMem);
+            CloseClipboard();
+        }
+        else
+        {
+            // Handle error: GlobalLock failed
+            MessageBoxA(NULL, "Failed to lock global memory.", "Error", MB_OK);
+        }
+    }
+    else
+    {
+        // Handle error: GlobalAlloc failed
+        MessageBoxA(NULL, "Failed to allocate global memory.", "Error", MB_OK);
+    }
+
+    char szFullMsg[64];
+    sprintf_s(szFullMsg, "Address copied: %s", szAddressOnly);
+    MessageBoxA(NULL, szFullMsg, "Copied!", MB_OK);
+}
+
 DWORD GetProcessIdByName(const std::string& processName)
 {
     PROCESSENTRY32 entry;
@@ -157,6 +194,70 @@ void WriteByte(HANDLE hProcess, uintptr_t address, uint8_t value)
     VirtualProtectEx(hProcess, (LPVOID)address, sizeof(value), oldProtect, &oldProtect);
 }
 
+size_t GetModuleSize(const char* moduleName)
+{
+    DWORD processId = GetProcessIdByName("RainbowSix.exe");
+    if (!processId) return 0;
+
+    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, processId);
+    if (hSnapshot == INVALID_HANDLE_VALUE) return 0;
+
+    MODULEENTRY32 me32 = { 0 };
+    me32.dwSize = sizeof(MODULEENTRY32);
+
+    if (Module32First(hSnapshot, &me32))
+    {
+        do
+        {
+            if (_stricmp(me32.szModule, moduleName) == 0)
+            {
+                CloseHandle(hSnapshot);
+                return (size_t)me32.modBaseSize;
+            }
+        } while (Module32Next(hSnapshot, &me32));
+    }
+
+    CloseHandle(hSnapshot);
+    return 0;
+}
+
+uintptr_t FindPatternExternal(HANDLE hProcess, uintptr_t base, size_t size, const char* pattern, const char* mask)
+{
+    std::vector<char> buffer(size);
+    SIZE_T bytesRead;
+    if (!ReadProcessMemory(hProcess, (LPCVOID)base, buffer.data(), size, &bytesRead))
+    {
+        MessageBoxA(NULL, "ReadProcessMemory failed!", "Error", MB_OK);
+        return 0;
+    }
+    if (bytesRead == 0)
+    {
+        MessageBoxA(NULL, "No bytes read!", "Error", MB_OK);
+        return 0;
+    }
+
+    size_t patternLen = strlen(mask);
+
+    for (size_t i = 0; i < bytesRead - patternLen; i++)
+    {
+        bool found = true;
+        for (size_t j = 0; j < patternLen; j++)
+        {
+            if (mask[j] != '?' && pattern[j] != buffer[i + j])
+            {
+                found = false;
+                break;
+            }
+        }
+        if (found)
+        {
+            return base + i;
+        }
+    }
+
+    return 0;
+}
+
 // ------------------------------------------------------------------------- \\
 // ------------------------------Cheat Functions---------------------------- \\
 // ------------------------------------------------------------------------- \\ 
@@ -182,7 +283,6 @@ int GlowESP()
         return 1;
     }
 
-    // Toggle logic
     uint8_t newValue = (currentByte == 0x74) ? 0x75 : 0x74;
     WriteByte(hProcess, addressToPatch1, newValue);
     WriteByte(hProcess, addressToPatch2, newValue);
@@ -190,3 +290,69 @@ int GlowESP()
     CloseHandle(hProcess);
     return 0;
 }
+
+int RunShoot(uintptr_t patchAddr1, uintptr_t patchAddr2)
+{
+    DWORD processId = GetProcessIdByName("RainbowSix.exe");
+    if (processId == 0) return 1;
+
+    HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, processId);
+    if (!hProcess) return 1;
+
+    uintptr_t baseAddress = GetBaseAddress(processId);
+    size_t moduleSize = GetModuleSize("RainbowSix.exe");
+
+    // Read 7 bytes from patchAddr1 to get current compare value
+    BYTE patchBytes[7];
+    if (!ReadProcessMemory(hProcess, (LPCVOID)patchAddr1, &patchBytes, sizeof(patchBytes), nullptr))
+    {
+        std::cerr << "[!] Failed to read patch bytes.\n";
+        CloseHandle(hProcess);
+        return 1;
+    }
+
+    // Toggle the compare value
+    BYTE currentValue = patchBytes[6];
+    BYTE newValue = (currentValue == 0x01) ? 0x00 : 0x01;
+    patchBytes[6] = newValue;
+
+    WriteProcessMemory(hProcess, (LPVOID)patchAddr1, patchBytes, sizeof(patchBytes), nullptr);
+    WriteProcessMemory(hProcess, (LPVOID)patchAddr2, patchBytes, sizeof(patchBytes), nullptr);
+
+    CloseHandle(hProcess);
+    return 0;
+}
+
+int BoltScript()
+{
+    DWORD processId = GetProcessIdByName("RainbowSix.exe");
+    if (processId == 0) return 1;
+
+    uintptr_t baseAddress = GetBaseAddress(processId);
+    if (baseAddress == 0) return 1;
+
+    uintptr_t patchAddress = baseAddress + 0x1c7e2d1; // Target instruction
+
+    HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, processId);
+    if (!hProcess) return 1;
+
+    // Read current byte at [patchAddress + 6] to determine if patch is applied
+    uint8_t currentValue = 0;
+    if (!ReadByte(hProcess, patchAddress + 6, currentValue)) // +6 = the immediate value (00 or 01)
+    {
+        CloseHandle(hProcess);
+        return 1;
+    }
+
+    // Toggle between 0 and 1
+    uint8_t newValue = (currentValue == 0x00) ? 0x01 : 0x00;
+
+    // Write the full opcode: mov byte ptr [rax+92], newValue
+    uint8_t patchBytes[7] = { 0xC6, 0x80, 0x92, 0x00, 0x00, 0x00, newValue };
+    SIZE_T bytesWritten = 0;
+    WriteProcessMemory(hProcess, (LPVOID)patchAddress, patchBytes, sizeof(patchBytes), &bytesWritten);
+
+    CloseHandle(hProcess);
+    return (bytesWritten == sizeof(patchBytes)) ? 0 : 1;
+}
+

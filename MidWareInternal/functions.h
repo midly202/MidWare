@@ -95,6 +95,9 @@ extern bool noSpreadEnabled;
 extern bool movementSpeedEnabled;
 extern bool fishEyeEnabled;
 extern bool glowEspEnabled;
+extern bool runShootEnabled;
+extern bool boltScriptEnabled;
+extern bool skyBoxEnabled;
 int64_t originalRecoilValue;
 int64_t originalGunSoundValue;
 int32_t originalFirerateValue;
@@ -208,9 +211,8 @@ uintptr_t FindPattern(const char* module, const char* pattern, const char* mask)
 	return NULL;
 }
 
-void showMenu(bool noRecoil, bool fireRate, bool infiniteAmmo, bool powerfulAmmo, bool noSpread, bool movementSpeed, bool fishEye, bool glowEsp)
+void showMenu(bool noRecoil, bool fireRate, bool infiniteAmmo, bool powerfulAmmo, bool noSpread, bool movementSpeed, bool fishEye, bool glowEsp, bool runShoot, bool boltScript, bool skybox)
 {
-
 	std::cout << RGB_PURPLE + BOLD << R"(
 +-----------------------------------------+
 |     /\___/\                             |
@@ -223,14 +225,19 @@ void showMenu(bool noRecoil, bool fireRate, bool infiniteAmmo, bool powerfulAmmo
 )" << RESET << "\n";
 
 	std::cout << BLINK + "[0] Uninject" + RESET << "\n\n";
+	std::cout << BOLD + RGB_PURPLE + "Internal" + RESET << "\n";
 	std::cout << "[1] [" << (infiniteAmmo ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Infinite Ammo\n";
 	std::cout << "[2] [" << (fireRate ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Rapid Fire\n";
 	std::cout << "[3] [" << (noRecoil ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] No Recoil\n";
 	std::cout << "[4] [" << (noSpread ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] No Spread\n";
-	std::cout << "[5] [" << (powerfulAmmo ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] InstaKill\n";
+	std::cout << "[5] [" << (powerfulAmmo ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Instant Kill\n";
 	std::cout << "[6] [" << (movementSpeed ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Speedy Gonzales\n";
 	std::cout << "[7] [" << (fishEye ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Fisheye FOV\n";
-	std::cout << "[8] [" << (glowEsp ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Glow ESP\n";
+	std::cout << "[8] [" << (skybox ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Remove Sky\n\n";
+	std::cout << BOLD + RGB_PURPLE + "External" + RESET << "\n";
+	std::cout << "[F1] [" << (glowEsp ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Glow ESP\n";
+	std::cout << "[F2] [" << (runShoot ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Run and Shoot\n";
+	std::cout << "[F3] [" << (boltScript ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Kali Bolt Script\n";
 }
 
 void WaitForKeyRelease(int vkKey)
@@ -291,7 +298,7 @@ void ToggleNoRecoil()
 	}
 	WaitForKeyRelease(VK_NUMPAD3);
 	system("cls");
-	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled);
+	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
 }
 
 void MaintainNoRecoil()
@@ -315,7 +322,7 @@ void MaintainNoRecoil()
 			{
 				noRecoilEnabled = false;
 				system("cls");
-				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled);
+				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
 				break;
 			}
 			continue;
@@ -334,7 +341,7 @@ void MaintainNoRecoil()
 			currentWeapon2->pGunRecoil = originalRecoilValue;
 			WaitForKeyRelease(VK_NUMPAD3);
 			system("cls");
-			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled);
+			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
 			break;
 		}
 	}
@@ -363,7 +370,7 @@ void ToggleFireRate()
 	}
 	WaitForKeyRelease(VK_NUMPAD2);
 	system("cls");
-	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled);
+	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
 }
 
 void MaintainFireRate()
@@ -388,7 +395,7 @@ void MaintainFireRate()
 			{
 				fireRateEnabled = false;
 				system("cls");
-				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled);
+				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
 				break;
 			}
 			continue;
@@ -401,9 +408,12 @@ void MaintainFireRate()
 		WeaponComponent* currentWeapon1 = reinterpret_cast<WeaponComponent*>(weaponPtr1);
 		CCurrentWeapon2* currentWeapon2 = reinterpret_cast<CCurrentWeapon2*>(weaponPtr2);
 		CCurrentWeapon3* currentWeapon3 = reinterpret_cast<CCurrentWeapon3*>(weaponPtr3);
-		currentWeapon1->gunFireMode = 0;
-		currentWeapon2->gunSound = 0;
-		currentWeapon3->GunFireRate = 9999;
+		if (currentWeapon1->gunFireMode != 0)
+			currentWeapon1->gunFireMode = 0;
+		if (currentWeapon2->gunSound != 0)
+			currentWeapon2->gunSound = 0;
+		if (currentWeapon3->GunFireRate != 9999)
+			currentWeapon3->GunFireRate = 9999;
 
 
 		if (GetAsyncKeyState(VK_NUMPAD2) & 0x8000)
@@ -414,7 +424,7 @@ void MaintainFireRate()
 			currentWeapon3->GunFireRate = originalFirerateValue;
 			WaitForKeyRelease(VK_NUMPAD2);
 			system("cls");
-			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled);
+			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
 			break;
 		}
 	}
@@ -437,7 +447,7 @@ void ToggleInfiniteAmmo()
 	}
 	WaitForKeyRelease(VK_NUMPAD1);
 	system("cls");
-	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled);
+	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
 }
 
 void MaintainInfiniteAmmo()
@@ -460,7 +470,7 @@ void MaintainInfiniteAmmo()
 			{
 				infiniteAmmoEnabled = false;
 				system("cls");
-				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled);
+				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
 				break;
 			}
 			continue;
@@ -480,7 +490,7 @@ void MaintainInfiniteAmmo()
 			weaponComponent->gunAmmo = originalAmmoValue;
 			WaitForKeyRelease(VK_NUMPAD1);
 			system("cls");
-			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled);
+			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
 			break;
 		}
 	}
@@ -503,7 +513,7 @@ void TogglePowerfulAmmo()
 	}
 	WaitForKeyRelease(VK_NUMPAD5);
 	system("cls");
-	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled);
+	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
 }
 
 void MaintainPowerfulAmmo()
@@ -526,7 +536,7 @@ void MaintainPowerfulAmmo()
 			{
 				powerfulAmmoEnabled = false;
 				system("cls");
-				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled);
+				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
 				break;
 			}
 			continue;
@@ -546,7 +556,7 @@ void MaintainPowerfulAmmo()
 			currentWeapon4->GunDamage = originalGunDamageValue;
 			WaitForKeyRelease(VK_NUMPAD5);
 			system("cls");
-			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled);
+			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
 			break;
 		}
 	}
@@ -569,7 +579,7 @@ void ToggleNoSpread()
 	}
 	WaitForKeyRelease(VK_NUMPAD4);
 	system("cls");
-	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled);
+	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
 }
 
 void MaintainNoSpread()
@@ -592,7 +602,7 @@ void MaintainNoSpread()
 			{
 				noSpreadEnabled = false;
 				system("cls");
-				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled);
+				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
 				break;
 			}
 			continue;
@@ -612,7 +622,7 @@ void MaintainNoSpread()
 			currentWeapon5->GunSpread = originalGunSpreadValue;
 			WaitForKeyRelease(VK_NUMPAD4);
 			system("cls");
-			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled);
+			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
 			break;
 		}
 	}
@@ -635,7 +645,7 @@ void ToggleMovementSpeed()
 	}
 	WaitForKeyRelease(VK_NUMPAD6);
 	system("cls");
-	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled);
+	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
 }
 
 void MaintainMovementSpeed()
@@ -654,11 +664,11 @@ void MaintainMovementSpeed()
 			{
 				invalidStartTime = GetTickCount64(); // start the "invalid" timer
 			}
-			else if (GetTickCount64() - invalidStartTime >= 4500)
+			else if (GetTickCount64() - invalidStartTime >= 6000)
 			{
 				movementSpeedEnabled = false;
 				system("cls");
-				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled);
+				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
 				break;
 			}
 			continue;
@@ -678,7 +688,7 @@ void MaintainMovementSpeed()
 			player->PlayerSpeed = originalPlayerSpeedValue;
 			WaitForKeyRelease(VK_NUMPAD6);
 			system("cls");
-			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled);
+			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
 			break;
 		}
 	}
@@ -702,7 +712,7 @@ void ToggleFishEye()
 	}
 	WaitForKeyRelease(VK_NUMPAD7);
 	system("cls");
-	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled);
+	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
 }
 
 void MaintainFishEye()
@@ -725,7 +735,7 @@ void MaintainFishEye()
 			{
 				fishEyeEnabled = false;
 				system("cls");
-				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled);
+				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
 				break;
 			}
 			continue;
@@ -747,7 +757,7 @@ void MaintainFishEye()
 			settings->GunFOV = originalGunFovValue;
 			WaitForKeyRelease(VK_NUMPAD7);
 			system("cls");
-			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled);
+			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
 			break;
 		}
 	}

@@ -11,14 +11,18 @@ namespace offsets
 	std::vector<uintptr_t> CCurrentWeapon3 = { 0x5E32C50, 0x88, 0x0, 0x30, 0x21, 0x70, 0x108, 0x0, 0x150, 0x0 };
 	std::vector<uintptr_t> CCurrentWeapon4 = { 0x5E32C50, 0x88, 0x0, 0x30, 0x21, 0x70, 0x108, 0x0, 0x148, 0x0 };
 	std::vector<uintptr_t> CCurrentWeapon5 = { 0x5E32C50, 0x88, 0x0, 0x30, 0x21, 0x70, 0x108, 0x0, 0x158, 0x0 };
+	std::vector<uintptr_t> LightManager = { 0x5E1F4B8, 0x10, 0x408 };
 	std::vector<uintptr_t> ESP = { 0x5E22F50, 0x48, 0x0 };
 }
 
 struct internalFlags
 {
 	bool glowESP;
-	bool runAndShoot;
+	bool runShoot;
+	bool boltScript;
 	bool exit;
+	uintptr_t runShootAddy1;
+	uintptr_t runShootAddy2;
 };
 
 // Created with ReClass.NET 1.2 by KN4CK3R
@@ -119,3 +123,11 @@ public:
 	char pad_0000[276]; //0x0000
 	float espOutlineThickness; //0x0114
 }; //Size: 0x0118
+
+class Skybox
+{
+public:
+	char pad_0000[672]; //0x0000
+	int8_t SkyBox; //0x02A0
+	char pad_02A1[167]; //0x02A1
+}; //Size: 0x0348
