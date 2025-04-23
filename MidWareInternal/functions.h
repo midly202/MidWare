@@ -211,6 +211,39 @@ uintptr_t FindPattern(const char* module, const char* pattern, const char* mask)
 	return NULL;
 }
 
+void showMenuInit()
+{
+	std::cout << RGB_PURPLE + BOLD << R"(
++-----------------------------------------+
+|     /\___/\                             |
+|    ( o   o )   Injected!                |
+|    (  =^=  )                            |
+|    (        )                           |
+|    (         )   Read that warning.     |
+|    (          )))))))))))))))           |
++-----------------------------------------+
+)" << RESET << "\n";
+
+	std::cout << BLINK + "[0] Uninject" + RESET << "\n\n";
+	std::cout << BOLD + RGB_PURPLE + "Internal" + RESET << "\n";
+	std::cout << "[1] [" << RED + "OFF" + RESET << "] Infinite Ammo\n";
+	std::cout << "[2] [" << RED + "OFF" + RESET << "] Rapid Fire*\n";
+	std::cout << "[3] [" << RED + "OFF" + RESET << "] No Recoil*\n";
+	std::cout << "[4] [" << RED + "OFF" + RESET << "] No Spread*\n";
+	std::cout << "[5] [" << RED + "OFF" + RESET << "] Instant Kill*\n";
+	std::cout << "[6] [" << RED + "OFF" + RESET << "] Speedy Gonzales*\n";
+	std::cout << "[7] [" << RED + "OFF" + RESET << "] Fisheye FOV\n";
+	std::cout << "[8] [" << RED + "OFF" + RESET << "] Remove Sky\n\n";
+	std::cout << BOLD + RGB_PURPLE + "External" + RESET << "\n";
+	std::cout << "[F1] [" << RED + "OFF" + RESET << "] Glow ESP\n";
+	std::cout << "[F2] [" << RED + "OFF" + RESET << "] Run and Shoot\n";
+	std::cout << "[F3] [" << RED + "OFF" + RESET << "] Kali Bolt Script\n";
+	std::cout << "\n" + BOLD + BRIGHT_RED +
+		"Warning: The game may crash if features marked with a * are left enabled while leaving or joining sessions.\n"
+		"         To prevent this, it's recommended to disable those features before transitioning between games." +
+		RESET + "\n";
+}
+
 void showMenu(bool noRecoil, bool fireRate, bool infiniteAmmo, bool powerfulAmmo, bool noSpread, bool movementSpeed, bool fishEye, bool glowEsp, bool runShoot, bool boltScript, bool skybox)
 {
 	std::cout << RGB_PURPLE + BOLD << R"(
