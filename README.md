@@ -1,20 +1,17 @@
-# 🎯 Rainbow Six Siege Internal Cheat (Shadow Legacy)
+# MidWare
 
 An advanced cheat for **Rainbow Six Siege**, specifically designed for the **November 17th Shadow Legacy** build.
 
 This project is split into two components:
 
-- 🧩 **External Loader (MidWare)**  
+- **External Loader**  
   Responsible for DLL injection and applying external-only features that are blocked internally.
-- 🧠 **Internal DLL**  
+- **Internal DLL**  
   Hosts the main CLI menu and all internal memory modifications.
 
 ---
 
 ## 🔧 Features
-
-### ✅ Internal Features
-These are handled directly by the injected DLL:
 
 | Keybind | Feature           | Description                                                                 |
 |--------:|-------------------|-----------------------------------------------------------------------------|
@@ -25,19 +22,13 @@ These are handled directly by the injected DLL:
 |   [5]   | InstaKill          | Makes every bullet lethal — 1 shot, 1 kill.                                |
 |   [6]   | Speedy Gonzales    | Increases player movement speed.                                           |
 |   [7]   | Fisheye FOV        | Modifies player and weapon FOV for a fisheye-style effect.                 |
-
-### 🧪 External Features (via Loader)
-These require external execution due to internal restrictions:
-
-- **Glow ESP** — Outlines enemies through walls and objects.
-- **Run and Shoot** — Allows sprinting while firing a weapon.
+|   [8]   | Glow ESP           | Outlines enemies through obstacles.                                        |
 
 ---
 
 ## 🖥️ In-Game Menu
 
-The CLI-based console shows the current status of all toggles (ON/OFF) and updates live as hotkeys are pressed.  
-Toggle features instantly using keybinds — no UI libraries required.
+The CLI shows the current status of all toggles (ON/OFF) and updates live as hotkeys are pressed.
 
 ---
 
@@ -54,8 +45,6 @@ Toggle features instantly using keybinds — no UI libraries required.
 
 ## 📝 Notes
 
-- This project is strictly for private/testing use on non-battleye builds.
 - Still a **work-in-progress** — more features and polish are on the way.
-- Designed with modularity in mind: you can easily extend the internal menu or add new external actions.
 
 ---
