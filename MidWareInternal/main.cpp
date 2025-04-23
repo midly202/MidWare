@@ -62,11 +62,19 @@ void Initialization(HMODULE instance) noexcept
 
 void OverwriteOpcodes(HMODULE instance) noexcept
 {
+    HANDLE hMapFile = OpenFileMapping(FILE_MAP_ALL_ACCESS, FALSE, "MySharedMemory");
+    if (!hMapFile) return;
+
+    internalFlags* pFlags = (internalFlags*)MapViewOfFile(hMapFile, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(internalFlags));
+    if (!pFlags) return;
+
     while (!GetAsyncKeyState(VK_NUMPAD0))
     {
         if (GetAsyncKeyState(VK_NUMPAD8) & 0x8000)
         {
             WaitForKeyRelease(VK_NUMPAD8);
+
+            glowEspEnabled = !glowEspEnabled;
 
             uintptr_t espPtr = GetPointer(baseAddress, offsets::ESP);
             if (!espPtr)
@@ -75,8 +83,7 @@ void OverwriteOpcodes(HMODULE instance) noexcept
             if (esp->espOutlineThickness != 2.5)
                 esp->espOutlineThickness = 2.5;
 
-            glowEspEnabled = !glowEspEnabled;
-            CallExternal(GlowEsp);
+            pFlags->glowESP = true;
 
             if (glowEspEnabled)
             {
@@ -92,6 +99,7 @@ void OverwriteOpcodes(HMODULE instance) noexcept
         Sleep(10);
     }
 
+    pFlags->exit = true;
     thread1Running = false;
 }
 

@@ -5,8 +5,12 @@
 #include <TlHelp32.h>
 #include <commdlg.h>
 #include <string>
+#include <Psapi.h>
 
-// Injection
+// ------------------------------------------------------------------------- \\
+// --------------------------------Injection-------------------------------- \\
+// ------------------------------------------------------------------------- \\ 
+
 uintptr_t GetProcId(const std::string& procName)
 {
     PROCESSENTRY32 entry{};
@@ -88,4 +92,101 @@ std::string GetDLLPath()
     ofn.lpstrTitle = "Select DLL to Inject";
 
     return GetOpenFileNameA(&ofn) ? std::string(filename) : "";
+}
+
+// ------------------------------------------------------------------------- \\
+// -------------------------------ExtBytePatch------------------------------ \\
+// ------------------------------------------------------------------------- \\ 
+
+DWORD GetProcessIdByName(const std::string& processName)
+{
+    PROCESSENTRY32 entry;
+    entry.dwSize = sizeof(PROCESSENTRY32);
+
+    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (snapshot == INVALID_HANDLE_VALUE)
+        return 0;
+
+    if (Process32First(snapshot, &entry))
+    {
+        do
+        {
+            if (processName == entry.szExeFile)
+            {
+                CloseHandle(snapshot);
+                return entry.th32ProcessID;
+            }
+        } while (Process32Next(snapshot, &entry));
+    }
+
+    CloseHandle(snapshot);
+    return 0;
+}
+
+uintptr_t GetBaseAddress(DWORD processId)
+{
+    HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processId);
+    if (!hProcess)
+        return 0;
+
+    HMODULE hMod[1024];
+    DWORD cbNeeded;
+    if (EnumProcessModules(hProcess, hMod, sizeof(hMod), &cbNeeded))
+    {
+        uintptr_t baseAddress = (uintptr_t)hMod[0];
+        CloseHandle(hProcess);
+        return baseAddress;
+    }
+
+    CloseHandle(hProcess);
+    return 0;
+}
+
+bool ReadByte(HANDLE hProcess, uintptr_t address, uint8_t& outByte)
+{
+    SIZE_T bytesRead;
+    return ReadProcessMemory(hProcess, (LPCVOID)address, &outByte, sizeof(outByte), &bytesRead) && bytesRead == sizeof(outByte);
+}
+
+void WriteByte(HANDLE hProcess, uintptr_t address, uint8_t value)
+{
+    DWORD oldProtect;
+    VirtualProtectEx(hProcess, (LPVOID)address, sizeof(value), PAGE_EXECUTE_READWRITE, &oldProtect);
+    SIZE_T bytesWritten;
+    WriteProcessMemory(hProcess, (LPVOID)address, &value, sizeof(value), &bytesWritten);
+    VirtualProtectEx(hProcess, (LPVOID)address, sizeof(value), oldProtect, &oldProtect);
+}
+
+// ------------------------------------------------------------------------- \\
+// ------------------------------Cheat Functions---------------------------- \\
+// ------------------------------------------------------------------------- \\ 
+
+int GlowESP()
+{
+    DWORD processId = GetProcessIdByName("RainbowSix.exe");
+    if (processId == 0) return 1;
+
+    uintptr_t baseAddress = GetBaseAddress(processId);
+    if (baseAddress == 0) return 1;
+
+    uintptr_t addressToPatch1 = baseAddress + 0x375b773;
+    uintptr_t addressToPatch2 = baseAddress + 0x375be7c;
+
+    HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, processId);
+    if (!hProcess) return 1;
+
+    uint8_t currentByte;
+    if (!ReadByte(hProcess, addressToPatch1, currentByte))
+    {
+        CloseHandle(hProcess);
+        return 1;
+    }
+
+    // Toggle logic
+    uint8_t newValue = (currentByte == 0x74) ? 0x75 : 0x74;
+    WriteByte(hProcess, addressToPatch1, newValue);
+    WriteByte(hProcess, addressToPatch2, newValue);
+
+    CloseHandle(hProcess);
+    return 0;
 }

@@ -14,6 +14,13 @@ namespace offsets
 	std::vector<uintptr_t> ESP = { 0x5E22F50, 0x48, 0x0 };
 }
 
+struct internalFlags
+{
+	bool glowESP;
+	bool runAndShoot;
+	bool exit;
+};
+
 // Created with ReClass.NET 1.2 by KN4CK3R
 
 class R6GamerProfileManager

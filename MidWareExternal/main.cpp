@@ -1,5 +1,7 @@
 #include "functions.h"
 
+const char* GlowEsp = "D:\\GlowESP\\ExtBytePatch.exe";
+
 int APIENTRY WinMain(
     _In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -28,23 +30,60 @@ int APIENTRY WinMain(
     // -----------------------------Allocate memory----------------------------- \\
     // ------------------------------------------------------------------------- \\ 
 
+    struct internalFlags
+    {
+        bool glowESP;
+        bool runAndShoot;
+        bool exit;
+    };
 
+    HANDLE hMapFile = CreateFileMapping(
+        INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0,
+        sizeof(internalFlags), "MySharedMemory");
+
+    if (!hMapFile)
+    {
+        std::cerr << "Could not create file mapping object. Error: " << GetLastError() << "\n";
+        return 1;
+    }
+
+    internalFlags* pFlags = (internalFlags*)MapViewOfFile(
+        hMapFile, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(internalFlags));
+
+    if (!pFlags)
+    {
+        std::cerr << "Could not map view of file. Error: " << GetLastError() << "\n";
+        CloseHandle(hMapFile);
+        return 1;
+    }
 
     // ------------------------------------------------------------------------- \\
     // --------------------------------Set flags-------------------------------- \\
     // ------------------------------------------------------------------------- \\ 
 
-
+    pFlags->glowESP = false;
+    pFlags->runAndShoot = false;
+    pFlags->exit = false;
 
     // ------------------------------------------------------------------------- \\
     // --------------------------------Read flags------------------------------- \\
     // ------------------------------------------------------------------------- \\ 
 
-
+    while (!pFlags->exit)
+    {
+        Sleep(10);
+        if (pFlags->glowESP)
+        {
+            GlowESP();
+            pFlags->glowESP = false;
+        }
+    }
 
     // ------------------------------------------------------------------------- \\
     // --------------------------Free allocated memory-------------------------- \\
     // ------------------------------------------------------------------------- \\ 
 
+    UnmapViewOfFile(pFlags);
+    CloseHandle(hMapFile);
     return 0;
 }
