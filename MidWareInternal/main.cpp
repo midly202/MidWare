@@ -77,6 +77,7 @@ void Toggles(HMODULE instance) noexcept
 
     address1 = FindPattern("RainbowSix.exe", "\x80\xB9\x00\x00\x00\x00\x00\x74\x15\xE8", "xx?????xxx");
     address2 = FindPattern("RainbowSix.exe", "\x80\xB9\x00\x00\x00\x00\x00\x0F\x84\x00\x00\x00\x00\x48\x89\xF1\x31", "xx?????xx????xxxx");
+
     pFlags->runShootAddy1 = address1;
     pFlags->runShootAddy2 = address2;
 

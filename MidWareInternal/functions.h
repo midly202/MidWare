@@ -877,8 +877,13 @@ void HandleGunCaliber()
 			WaitForKeyRelease(VK_NUMPAD9);
 			gunCaliberIndex++;
 			if (gunCaliberIndex >= 5)
+			{
 				gunCaliberIndex = 0;
-
+				gunCaliber->GunCaliber = gunCaliberModes[gunCaliberIndex];
+				system("cls");
+				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
+				break;
+			}
 			system("cls");
 			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
 		}
