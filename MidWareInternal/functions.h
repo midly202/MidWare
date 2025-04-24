@@ -236,7 +236,6 @@ void showMenuInit()
 +-----------------------------------------+
 )" << RESET << "\n";
 
-	//std::cout << BLINK + "[0] Uninject" + RESET << "\n\n";
 	std::cout << BOLD + RGB_PURPLE + "Internal" + RESET << "\n";
 	std::cout << "[1] [" << RED + "OFF" + RESET << "] Infinite Ammo\n";
 	std::cout << "[2] [" << RED + "OFF" + RESET << "] Rapid Fire*\n";
@@ -316,7 +315,6 @@ void showMenu(bool noRecoil, bool fireRate, bool infiniteAmmo, bool powerfulAmmo
 	std::cout << "[F3] [" << (boltScript ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Remove Pump Action / Bolt Action\n";
 	std::cout << "[F4] [" << (infGadget ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Infinite Gadgets\n";
 	std::cout << "[F5] [" << (goOutside ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Can Go Outside\n\n";
-	// std::cout << BLINK + "[0] Uninject" + RESET << "\n\n";
 }
 
 void WaitForKeyRelease(int vkKey)
