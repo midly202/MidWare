@@ -75,6 +75,11 @@ void Toggles(HMODULE instance) noexcept
     internalFlags* pFlags = (internalFlags*)MapViewOfFile(hMapFile, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(internalFlags));
     if (!pFlags) return;
 
+    address1 = FindPattern("RainbowSix.exe", "\x80\xB9\x00\x00\x00\x00\x00\x74\x15\xE8", "xx?????xxx");
+    address2 = FindPattern("RainbowSix.exe", "\x80\xB9\x00\x00\x00\x00\x00\x0F\x84\x00\x00\x00\x00\x48\x89\xF1\x31", "xx?????xx????xxxx");
+    pFlags->runShootAddy1 = address1;
+    pFlags->runShootAddy2 = address2;
+
     while (!GetAsyncKeyState(VK_NUMPAD0))
     {
         if (GetAsyncKeyState(VK_F1) & 0x8000)
@@ -114,12 +119,6 @@ void Toggles(HMODULE instance) noexcept
             {
                 system("cls");
                 showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
-                if (!address1)
-                    address1 = FindPattern("RainbowSix.exe", "\x80\xB9\x00\x00\x00\x00\x00\x74\x15\xE8", "xx?????xxx");
-                if (!address2)
-                    address2 = FindPattern("RainbowSix.exe", "\x80\xB9\x00\x00\x00\x00\x00\x0F\x84\x00\x00\x00\x00\x48\x89\xF1\x31", "xx?????xx????xxxx");
-                pFlags->runShootAddy1 = address1;
-                pFlags->runShootAddy2 = address2;
                 pFlags->runShoot = true;
             }
             else

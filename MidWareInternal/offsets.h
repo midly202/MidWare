@@ -93,7 +93,8 @@ class CCurrentWeapon3
 public:
 	char pad_0000[60]; //0x0000
 	int32_t GunFireRate; //0x003C
-	char pad_0040[968]; //0x0040
+	uint8_t BPS; //0x0040
+	char pad_0041[967]; //0x0041
 }; //Size: 0x0408
 
 class CCurrentWeapon4
