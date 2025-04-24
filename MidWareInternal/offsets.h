@@ -11,6 +11,7 @@ namespace offsets
 	std::vector<uintptr_t> CCurrentWeapon3 = { 0x5E32C50, 0x88, 0x0, 0x30, 0x21, 0x70, 0x108, 0x0, 0x150, 0x0 };
 	std::vector<uintptr_t> CCurrentWeapon4 = { 0x5E32C50, 0x88, 0x0, 0x30, 0x21, 0x70, 0x108, 0x0, 0x148, 0x0 };
 	std::vector<uintptr_t> CCurrentWeapon5 = { 0x5E32C50, 0x88, 0x0, 0x30, 0x21, 0x70, 0x108, 0x0, 0x158, 0x0 };
+	std::vector<uintptr_t> CCurrentWeaponCaliber = { 0x5E32C50, 0x88, 0x0, 0x30, 0x21, 0x70, 0x108, 0x0, 0x150, 0x0 };
 	std::vector<uintptr_t> LightManager = { 0x5E1F4B8, 0x10, 0x408 };
 	std::vector<uintptr_t> ESP = { 0x5E22F50, 0x48, 0x0 };
 }
@@ -20,6 +21,8 @@ struct internalFlags
 	bool glowESP;
 	bool runShoot;
 	bool boltScript;
+	bool infGadget;
+	bool goOutside;
 	bool exit;
 	uintptr_t runShootAddy1;
 	uintptr_t runShootAddy2;
@@ -98,8 +101,17 @@ class CCurrentWeapon4
 public:
 	char pad_0000[108]; //0x0000
 	int32_t GunDamage; //0x006C
-	char pad_0070[1944]; //0x0070
+	int32_t GunWallDamage; //0x0070
+	char pad_0074[1940]; //0x0074
 }; //Size: 0x0808
+
+class CCurrentWeaponCaliber
+{
+public:
+	char pad_0000[76]; //0x0000
+	uint32_t GunCaliber; //0x004C
+	char pad_0050[60]; //0x0050
+}; //Size: 0x008C
 
 class CPlayer
 {

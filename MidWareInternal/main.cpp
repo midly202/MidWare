@@ -26,7 +26,10 @@ bool fishEyeEnabled = false;
 bool glowEspEnabled = false;
 bool runShootEnabled = false;
 bool boltScriptEnabled = false;
+bool infiniteGadgetEnabled = false;
+bool goOutsideEnabled = false;
 bool skyBoxEnabled = false;
+int gunCaliberIndex = 0;
 
 bool thread1Running = true;
 bool thread2Running = true;
@@ -36,6 +39,7 @@ bool thread5Running = true;
 bool thread6Running = true;
 bool thread7Running = true;
 bool thread8Running = true;
+bool thread9Running = true;
 
 void Initialization(HMODULE instance) noexcept
 {
@@ -91,12 +95,12 @@ void Toggles(HMODULE instance) noexcept
             if (glowEspEnabled)
             {
                 system("cls");
-                showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+                showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
             }
             else
             {
                 system("cls");
-                showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+                showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
             }
         }
 
@@ -109,7 +113,7 @@ void Toggles(HMODULE instance) noexcept
             if (runShootEnabled)
             {
                 system("cls");
-                showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+                showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
                 if (!address1)
                     address1 = FindPattern("RainbowSix.exe", "\x80\xB9\x00\x00\x00\x00\x00\x74\x15\xE8", "xx?????xxx");
                 if (!address2)
@@ -122,7 +126,7 @@ void Toggles(HMODULE instance) noexcept
             {
                 pFlags->runShoot = true;
                 system("cls");
-                showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+                showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
             }
         }
 
@@ -137,12 +141,52 @@ void Toggles(HMODULE instance) noexcept
             if (boltScriptEnabled)
             {
                 system("cls");
-                showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+                showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
             }
             else
             {
                 system("cls");
-                showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+                showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
+            }
+        }
+
+        else if (GetAsyncKeyState(VK_F4) & 0x8000)
+        {
+            WaitForKeyRelease(VK_F4);
+
+            infiniteGadgetEnabled = !infiniteGadgetEnabled;
+
+            pFlags->infGadget = true;
+
+            if (infiniteGadgetEnabled)
+            {
+                system("cls");
+                showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
+            }
+            else
+            {
+                system("cls");
+                showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
+            }
+        }
+
+        else if (GetAsyncKeyState(VK_F5) & 0x8000)
+        {
+            WaitForKeyRelease(VK_F5);
+
+            goOutsideEnabled = !goOutsideEnabled;
+
+            pFlags->goOutside = true;
+
+            if (goOutsideEnabled)
+            {
+                system("cls");
+                showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
+            }
+            else
+            {
+                system("cls");
+                showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
             }
         }
 
@@ -159,17 +203,17 @@ void Toggles(HMODULE instance) noexcept
 
             if (skyBoxEnabled)
             {
-				skybox->SkyBox = 0;
+                skybox->SkyBox = 0;
                 system("cls");
-                showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+                showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
             }
             else
             {
-				skybox->SkyBox = 1;
+                skybox->SkyBox = 1;
                 system("cls");
-                showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+                showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
             }
-        }
+            }
         Sleep(10);
     }
 
@@ -289,6 +333,20 @@ void FishEye(HMODULE instance) noexcept
     thread8Running = false;
 }
 
+void GunCaliber(HMODULE instance) noexcept
+{
+    while (!GetAsyncKeyState(VK_NUMPAD0))
+    {
+        Sleep(10);
+        if (GetAsyncKeyState(VK_NUMPAD9) & 0x8000)
+        {
+            HandleGunCaliber();
+        }
+    }
+
+    thread9Running = false;
+}
+
 int __stdcall DllMain(HMODULE instance, std::uintptr_t reason, const void* reserved)
 {
     switch (reason)
@@ -313,6 +371,8 @@ int __stdcall DllMain(HMODULE instance, std::uintptr_t reason, const void* reser
         if (thread8) CloseHandle(thread8);
         const auto thread9 = CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(FishEye), instance, 0, nullptr);
         if (thread9) CloseHandle(thread9);
+        const auto thread10 = CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(GunCaliber), instance, 0, nullptr);
+        if (thread10) CloseHandle(thread10);
         break;
     }
 

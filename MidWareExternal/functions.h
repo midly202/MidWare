@@ -356,3 +356,92 @@ int BoltScript()
     return (bytesWritten == sizeof(patchBytes)) ? 0 : 1;
 }
 
+int InfiniteSecondaryGadgets()
+{
+    DWORD processId = GetProcessIdByName("RainbowSix.exe");
+    if (processId == 0) return 1;
+
+    uintptr_t baseAddress = GetBaseAddress(processId);
+    if (baseAddress == 0) return 1;
+
+    uintptr_t patchAddress = baseAddress + 0x319BD38;
+
+    HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, processId);
+    if (!hProcess) return 1;
+
+    // Read original bytes (3 bytes)
+    uint8_t originalBytes[3];
+    if (!ReadProcessMemory(hProcess, (LPCVOID)patchAddress, &originalBytes, 3, nullptr))
+    {
+        CloseHandle(hProcess);
+        return 1;
+    }
+
+    // Check if already NOPed
+    bool isNOPed = (originalBytes[0] == 0x90 && originalBytes[1] == 0x90 && originalBytes[2] == 0x90);
+
+    if (isNOPed)
+    {
+        // Restore original instruction: mov [rcx+64], edi -> 89 79 64
+        uint8_t restoreInstruction[3] = { 0x89, 0x79, 0x64 };
+        WriteProcessMemory(hProcess, (LPVOID)patchAddress, restoreInstruction, 3, nullptr);
+    }
+    else
+    {
+        // NOP out the instruction
+        uint8_t nops[3] = { 0x90, 0x90, 0x90 };
+        WriteProcessMemory(hProcess, (LPVOID)patchAddress, nops, 3, nullptr);
+    }
+
+    CloseHandle(hProcess);
+    return 0;
+}
+
+int GoOutside()
+{
+    DWORD processId = GetProcessIdByName("RainbowSix.exe");
+    if (processId == 0) return 1;
+
+    uintptr_t baseAddress = GetBaseAddress(processId);
+    if (baseAddress == 0) return 1;
+
+    uintptr_t patchAddress = baseAddress + 0x3865294;
+
+    HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, processId);
+    if (!hProcess) return 1;
+
+    // Read current bytes (6 bytes)
+    uint8_t currentBytes[6];
+    if (!ReadProcessMemory(hProcess, (LPCVOID)patchAddress, &currentBytes, 6, nullptr))
+    {
+        CloseHandle(hProcess);
+        return 1;
+    }
+
+    // Check if already NOPed
+    bool isNOPed = true;
+    for (int i = 0; i < 6; i++)
+    {
+        if (currentBytes[i] != 0x90)
+        {
+            isNOPed = false;
+            break;
+        }
+    }
+
+    if (isNOPed)
+    {
+        // Restore: mov eax,[rax+5118] -> 8B 80 18 51 00 00
+        uint8_t originalInstruction[6] = { 0x8B, 0x80, 0x18, 0x51, 0x00, 0x00 };
+        WriteProcessMemory(hProcess, (LPVOID)patchAddress, originalInstruction, 6, nullptr);
+    }
+    else
+    {
+        // NOP 6 bytes
+        uint8_t nops[6] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
+        WriteProcessMemory(hProcess, (LPVOID)patchAddress, nops, 6, nullptr);
+    }
+
+    CloseHandle(hProcess);
+    return 0;
+}

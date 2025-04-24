@@ -97,17 +97,29 @@ extern bool fishEyeEnabled;
 extern bool glowEspEnabled;
 extern bool runShootEnabled;
 extern bool boltScriptEnabled;
+extern bool infiniteGadgetEnabled;
+extern bool goOutsideEnabled;
 extern bool skyBoxEnabled;
+extern int gunCaliberIndex;
 int64_t originalRecoilValue;
 int64_t originalGunSoundValue;
 int32_t originalFirerateValue;
 int32_t originalAmmoValue;
 int32_t originalGunDamageValue;
+int32_t originalGunWallDamageValue;
 int32_t originalPlayerSpeedValue;
 int8_t originalFireModeValue;
 float originalGunSpreadValue;
 float originalPlayerFovValue;
 float originalGunFovValue;
+
+uint32_t gunCaliberModes[] = {
+	3864566559, // Regular Rifle
+	1216095593, // Skeleton Key
+	3683118896, // Kali’s Sniper
+	2249646560, // Tachanka’s DP27
+	2097060903  // Maverick’s Blowtorch
+};
 
 void MsgBoxAddy(uintptr_t addy)
 {
@@ -224,7 +236,7 @@ void showMenuInit()
 +-----------------------------------------+
 )" << RESET << "\n";
 
-	std::cout << BLINK + "[0] Uninject" + RESET << "\n\n";
+	//std::cout << BLINK + "[0] Uninject" + RESET << "\n\n";
 	std::cout << BOLD + RGB_PURPLE + "Internal" + RESET << "\n";
 	std::cout << "[1] [" << RED + "OFF" + RESET << "] Infinite Ammo\n";
 	std::cout << "[2] [" << RED + "OFF" + RESET << "] Rapid Fire*\n";
@@ -233,31 +245,61 @@ void showMenuInit()
 	std::cout << "[5] [" << RED + "OFF" + RESET << "] Instant Kill*\n";
 	std::cout << "[6] [" << RED + "OFF" + RESET << "] Speedy Gonzales*\n";
 	std::cout << "[7] [" << RED + "OFF" + RESET << "] Fisheye FOV\n";
-	std::cout << "[8] [" << RED + "OFF" + RESET << "] Remove Sky\n\n";
+	std::cout << "[8] [" << RED + "OFF" + RESET << "] Remove Sky\n";
+	std::cout << "[9] [" << RED + "OFF" + RESET << "] Gun Caliber*\n\n";
 	std::cout << BOLD + RGB_PURPLE + "External" + RESET << "\n";
 	std::cout << "[F1] [" << RED + "OFF" + RESET << "] Glow ESP\n";
 	std::cout << "[F2] [" << RED + "OFF" + RESET << "] Run and Shoot\n";
-	std::cout << "[F3] [" << RED + "OFF" + RESET << "] Kali Bolt Script\n";
+	std::cout << "[F3] [" << RED + "OFF" + RESET << "] Remove Pump Action / Bolt Action\n";
+	std::cout << "[F4] [" << RED + "OFF" + RESET << "] Infinite Gadgets\n";
+	std::cout << "[F5] [" << RED + "OFF" + RESET << "] Can Go Outside \n";
 	std::cout << "\n" + BOLD + BRIGHT_RED +
-		"Warning: The game may crash if features marked with a * are left enabled while leaving or joining sessions.\n"
-		"         To prevent this, it's recommended to disable those features before transitioning between games." +
-		RESET + "\n";
+		"Warning: The game may crash if features marked with a * are left enabled while leaving or joining sessions.\n" + RESET;
 }
 
-void showMenu(bool noRecoil, bool fireRate, bool infiniteAmmo, bool powerfulAmmo, bool noSpread, bool movementSpeed, bool fishEye, bool glowEsp, bool runShoot, bool boltScript, bool skybox)
+void showMenu(bool noRecoil, bool fireRate, bool infiniteAmmo, bool powerfulAmmo, bool noSpread, bool movementSpeed, bool fishEye, bool glowEsp, bool runShoot, bool boltScript, bool skybox, bool infGadget, bool goOutside, int caliber)
 {
+	std::string caliberToggle;
+	std::string caliberText;
+	switch (caliber)
+	{
+	case 0:
+		caliberToggle = "[" + RED + "OFF" + RESET + "]";
+		caliberText = "";
+		break;
+	case 1:
+		caliberToggle = "[" + GREEN + "ON" + RESET + "]";
+		caliberText = "[" + ORANGE_256 + "Skeleton Key" + RESET + "]";
+		break;
+	case 2:
+		caliberToggle = "[" + GREEN + "ON" + RESET + "]";
+		caliberText = "[" + BRIGHT_YELLOW + "CSRX 300" + RESET + "]";
+		break;
+	case 3:
+		caliberToggle = "[" + GREEN + "ON" + RESET + "]";
+		caliberText = "[" + NEON_GREEN_256 + "DP27" + RESET + "]";
+		break;
+	case 4:
+		caliberToggle = "[" + GREEN + "ON" + RESET + "]";
+		caliberText = "[" + SKY_BLUE_256 + "Mav Blowtorch" + RESET + "]";
+		break;
+	default:
+		caliberToggle = "[" + GREEN + "ON" + RESET + "]";
+		caliberText = RED + "[Unknown]" + RESET;
+		break;
+	}
+
 	std::cout << RGB_PURPLE + BOLD << R"(
 +-----------------------------------------+
 |     /\___/\                             |
 |    ( o   o )   Injected!                |
 |    (  =^=  )                            |
 |    (        )                           |
-|    (         )   Let's go.              |
+|    (         )   )" << BLINK + BRIGHT_RED + "[0] Uninject" + RESET + RGB_PURPLE + BOLD << R"(           |
 |    (          )))))))))))))))           |
 +-----------------------------------------+
 )" << RESET << "\n";
 
-	std::cout << BLINK + "[0] Uninject" + RESET << "\n\n";
 	std::cout << BOLD + RGB_PURPLE + "Internal" + RESET << "\n";
 	std::cout << "[1] [" << (infiniteAmmo ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Infinite Ammo\n";
 	std::cout << "[2] [" << (fireRate ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Rapid Fire\n";
@@ -266,11 +308,15 @@ void showMenu(bool noRecoil, bool fireRate, bool infiniteAmmo, bool powerfulAmmo
 	std::cout << "[5] [" << (powerfulAmmo ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Instant Kill\n";
 	std::cout << "[6] [" << (movementSpeed ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Speedy Gonzales\n";
 	std::cout << "[7] [" << (fishEye ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Fisheye FOV\n";
-	std::cout << "[8] [" << (skybox ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Remove Sky\n\n";
+	std::cout << "[8] [" << (skybox ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Remove Sky\n";
+	std::cout << "[9] " << caliberToggle << " Gun Caliber " << caliberText << "\n\n";
 	std::cout << BOLD + RGB_PURPLE + "External" + RESET << "\n";
 	std::cout << "[F1] [" << (glowEsp ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Glow ESP\n";
 	std::cout << "[F2] [" << (runShoot ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Run and Shoot\n";
-	std::cout << "[F3] [" << (boltScript ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Kali Bolt Script\n";
+	std::cout << "[F3] [" << (boltScript ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Remove Pump Action / Bolt Action\n";
+	std::cout << "[F4] [" << (infGadget ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Infinite Gadgets\n";
+	std::cout << "[F5] [" << (goOutside ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Can Go Outside\n\n";
+	// std::cout << BLINK + "[0] Uninject" + RESET << "\n\n";
 }
 
 void WaitForKeyRelease(int vkKey)
@@ -331,7 +377,7 @@ void ToggleNoRecoil()
 	}
 	WaitForKeyRelease(VK_NUMPAD3);
 	system("cls");
-	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
 }
 
 void MaintainNoRecoil()
@@ -355,7 +401,7 @@ void MaintainNoRecoil()
 			{
 				noRecoilEnabled = false;
 				system("cls");
-				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
 				break;
 			}
 			continue;
@@ -374,7 +420,7 @@ void MaintainNoRecoil()
 			currentWeapon2->pGunRecoil = originalRecoilValue;
 			WaitForKeyRelease(VK_NUMPAD3);
 			system("cls");
-			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
 			break;
 		}
 	}
@@ -403,7 +449,7 @@ void ToggleFireRate()
 	}
 	WaitForKeyRelease(VK_NUMPAD2);
 	system("cls");
-	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
 }
 
 void MaintainFireRate()
@@ -428,7 +474,7 @@ void MaintainFireRate()
 			{
 				fireRateEnabled = false;
 				system("cls");
-				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
 				break;
 			}
 			continue;
@@ -457,7 +503,7 @@ void MaintainFireRate()
 			currentWeapon3->GunFireRate = originalFirerateValue;
 			WaitForKeyRelease(VK_NUMPAD2);
 			system("cls");
-			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
 			break;
 		}
 	}
@@ -480,7 +526,7 @@ void ToggleInfiniteAmmo()
 	}
 	WaitForKeyRelease(VK_NUMPAD1);
 	system("cls");
-	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
 }
 
 void MaintainInfiniteAmmo()
@@ -503,7 +549,7 @@ void MaintainInfiniteAmmo()
 			{
 				infiniteAmmoEnabled = false;
 				system("cls");
-				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
 				break;
 			}
 			continue;
@@ -523,7 +569,7 @@ void MaintainInfiniteAmmo()
 			weaponComponent->gunAmmo = originalAmmoValue;
 			WaitForKeyRelease(VK_NUMPAD1);
 			system("cls");
-			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
 			break;
 		}
 	}
@@ -546,7 +592,7 @@ void TogglePowerfulAmmo()
 	}
 	WaitForKeyRelease(VK_NUMPAD5);
 	system("cls");
-	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
 }
 
 void MaintainPowerfulAmmo()
@@ -569,7 +615,7 @@ void MaintainPowerfulAmmo()
 			{
 				powerfulAmmoEnabled = false;
 				system("cls");
-				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
 				break;
 			}
 			continue;
@@ -589,7 +635,7 @@ void MaintainPowerfulAmmo()
 			currentWeapon4->GunDamage = originalGunDamageValue;
 			WaitForKeyRelease(VK_NUMPAD5);
 			system("cls");
-			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
 			break;
 		}
 	}
@@ -612,7 +658,7 @@ void ToggleNoSpread()
 	}
 	WaitForKeyRelease(VK_NUMPAD4);
 	system("cls");
-	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
 }
 
 void MaintainNoSpread()
@@ -635,7 +681,7 @@ void MaintainNoSpread()
 			{
 				noSpreadEnabled = false;
 				system("cls");
-				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
 				break;
 			}
 			continue;
@@ -655,7 +701,7 @@ void MaintainNoSpread()
 			currentWeapon5->GunSpread = originalGunSpreadValue;
 			WaitForKeyRelease(VK_NUMPAD4);
 			system("cls");
-			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
 			break;
 		}
 	}
@@ -678,7 +724,7 @@ void ToggleMovementSpeed()
 	}
 	WaitForKeyRelease(VK_NUMPAD6);
 	system("cls");
-	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
 }
 
 void MaintainMovementSpeed()
@@ -701,7 +747,7 @@ void MaintainMovementSpeed()
 			{
 				movementSpeedEnabled = false;
 				system("cls");
-				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
 				break;
 			}
 			continue;
@@ -721,7 +767,7 @@ void MaintainMovementSpeed()
 			player->PlayerSpeed = originalPlayerSpeedValue;
 			WaitForKeyRelease(VK_NUMPAD6);
 			system("cls");
-			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
 			break;
 		}
 	}
@@ -745,7 +791,7 @@ void ToggleFishEye()
 	}
 	WaitForKeyRelease(VK_NUMPAD7);
 	system("cls");
-	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
 }
 
 void MaintainFishEye()
@@ -768,7 +814,7 @@ void MaintainFishEye()
 			{
 				fishEyeEnabled = false;
 				system("cls");
-				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
 				break;
 			}
 			continue;
@@ -790,8 +836,53 @@ void MaintainFishEye()
 			settings->GunFOV = originalGunFovValue;
 			WaitForKeyRelease(VK_NUMPAD7);
 			system("cls");
-			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled);
+			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
 			break;
+		}
+	}
+}
+
+void HandleGunCaliber()
+{
+	ULONGLONG invalidStartTime = 0;
+
+	while (!GetAsyncKeyState(VK_NUMPAD0))
+	{
+		Sleep(10);
+		uintptr_t caliberPtr = GetPointer(baseAddress, offsets::CCurrentWeaponCaliber);
+		bool valid = caliberPtr && !IsBadReadPtr(reinterpret_cast<void*>(caliberPtr), sizeof(CCurrentWeaponCaliber));
+
+		if (!valid)
+		{
+			if (invalidStartTime == 0)
+				invalidStartTime = GetTickCount64();
+			else if (GetTickCount64() - invalidStartTime >= 2000)
+			{
+				gunCaliberIndex = 0;
+				system("cls");
+				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
+				break;
+			}
+			continue;
+		}
+		else
+		{
+			invalidStartTime = 0;
+		}
+
+		CCurrentWeaponCaliber* gunCaliber = reinterpret_cast<CCurrentWeaponCaliber*>(caliberPtr);
+		gunCaliber->GunCaliber = gunCaliberModes[gunCaliberIndex];
+
+		// Check for NUMPAD9 to cycle
+		if (GetAsyncKeyState(VK_NUMPAD9) & 0x8000)
+		{
+			WaitForKeyRelease(VK_NUMPAD9);
+			gunCaliberIndex++;
+			if (gunCaliberIndex >= 5)
+				gunCaliberIndex = 0;
+
+			system("cls");
+			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
 		}
 	}
 }

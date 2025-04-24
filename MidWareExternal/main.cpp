@@ -33,6 +33,8 @@ int APIENTRY WinMain(
         bool glowESP;
         bool runShoot;
         bool boltScript;
+        bool infGadget;
+        bool goOutside;
         bool exit;
         uintptr_t runShootAddy1;
         uintptr_t runShootAddy2;
@@ -65,6 +67,8 @@ int APIENTRY WinMain(
     pFlags->glowESP = false;
     pFlags->runShoot = false;
     pFlags->boltScript = false;
+    pFlags->infGadget = false;
+    pFlags->goOutside = false;
     pFlags->exit = false;
 
     // ------------------------------------------------------------------------- \\
@@ -94,6 +98,16 @@ int APIENTRY WinMain(
             BoltScript();
             pFlags->boltScript = false;
         }
+		else if (pFlags->infGadget)
+		{
+			InfiniteSecondaryGadgets();
+			pFlags->infGadget = false;
+		}
+		else if (pFlags->goOutside)
+		{
+			GoOutside();
+			pFlags->goOutside = false;
+		}
 
         Sleep(10);
     }
