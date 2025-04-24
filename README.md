@@ -26,7 +26,7 @@ The CLI shows the current status of all toggles (ON/OFF) and updates live as hot
 |   [6]   | Speedy Gonzales    | Greatly increases player movement speed.                                                      |
 |   [7]   | Fisheye FOV        | Modifies player and weapon FOV for a panoramic fisheye effect.                                |
 |   [8]   | Remove Sky         | Removes the current skybox.                                                                   |
-|   [9]   | Gun Caliber        | Alters current weapon's caliber to Skeleton Key, CRX 300, DP27, or Mav's Torch.               |
+|   [9]   | Gun Caliber        | Alters current weapon's caliber to Skeleton Key, CSRX 300, DP27, or Mav's Torch.              |
 |   [F1]  | Glow ESP           | Highlights enemies through walls and smoke.                                                   |
 |   [F2]  | Run and Shoot      | Allows sprinting in any direction, while crouched, or while firing.                           |
 |   [F3]  | Bolt Script        | Eliminates bolt or pump delays on applicable weapons.                                         |
