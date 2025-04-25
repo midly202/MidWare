@@ -75,8 +75,9 @@ int APIENTRY WinMain(
     // --------------------------------Read flags------------------------------- \\
     // ------------------------------------------------------------------------- \\ 
 
-    HANDLE hProc = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, procId);
+    UnlockAll();
 
+    HANDLE hProc = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, procId);
     while (!pFlags->exit)
     {
         DWORD exitCode = 0;

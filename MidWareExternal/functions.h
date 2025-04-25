@@ -445,3 +445,23 @@ int GoOutside()
     CloseHandle(hProcess);
     return 0;
 }
+
+int UnlockAll()
+{
+    DWORD processId = GetProcessIdByName("RainbowSix.exe");
+    if (processId == 0) return 1;
+
+    uintptr_t baseAddress = GetBaseAddress(processId);
+    if (baseAddress == 0) return 1;
+
+    uintptr_t patchAddress = baseAddress + 0x3843080;
+    HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, processId);
+    if (!hProcess) return 1;
+
+    // Patch: mov r12l, 00; nop
+    uint8_t patchBytes[4] = { 0x41, 0xB4, 0x00, 0x90 };
+    WriteProcessMemory(hProcess, (LPVOID)patchAddress, patchBytes, 4, nullptr);
+
+    CloseHandle(hProcess);
+    return 0;
+}

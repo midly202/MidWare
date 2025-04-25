@@ -115,9 +115,12 @@ float originalGunFovValue;
 
 uint32_t gunCaliberModes[] = {
 	3864566559, // Regular Rifle
+	// 224916230// Regular Pistol
+	//1635385480// Regular SMG
 	1216095593, // Skeleton Key
 	3683118896, // Kali’s Sniper
 	2249646560, // Tachanka’s DP27
+	// 54247478 // Tachanka's DP27 (stationary turret) 
 	2097060903  // Maverick’s Blowtorch
 };
 
