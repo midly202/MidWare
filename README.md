@@ -47,3 +47,7 @@ The CLI shows the current status of all toggles (ON/OFF) and updates live as hot
 4. Exit cleanly using `[NUMPAD 0]` or by closing the game.
 
 ---
+
+## 📺 Showcase
+
+https://www.youtube.com/watch?v=V0JPKZH6EOM
