@@ -17,6 +17,7 @@ The CLI shows the current status of all toggles (ON/OFF) and updates live as hot
 
 | Keybind | Feature            | Description                                                                                   |
 |--------:|--------------------|-----------------------------------------------------------------------------------------------|
+|   [N/A] | Unlock All         | Automatically unlocks all skins, attachment skins, headgears, and uniforms upon injection.    |
 |   [0]   | Uninject           | Safely removes the DLL and instructs the loader to terminate the executable.                  |
 |   [1]   | Infinite Ammo      | Never run out of bullets — keeps your clip perpetually full.                                  |
 |   [2]   | Rapid Fire         | Removes fire rate cap and makes all weapons fully-automatic.                                  |
