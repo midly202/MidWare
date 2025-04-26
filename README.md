@@ -51,3 +51,9 @@ The CLI shows the current status of all toggles (ON/OFF) and updates live as hot
 ## 📺 Showcase
 
 https://www.youtube.com/watch?v=V0JPKZH6EOM
+
+---
+
+## 📝 Notes
+
+Still a WIP. More features are going to be added.
