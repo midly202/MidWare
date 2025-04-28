@@ -542,11 +542,11 @@ void MaintainFireRate()
 
 		if (GetAsyncKeyState(VK_NUMPAD2) & 0x8000)
 		{
+			WaitForKeyRelease(VK_NUMPAD2);
 			fireRateEnabled = false;
 			currentWeapon1->gunFireMode = originalFireModeValue;
 			currentWeapon2->gunSound = originalGunSoundValue;
 			currentWeapon3->GunFireRate = originalFirerateValue;
-			WaitForKeyRelease(VK_NUMPAD2);
 			system("cls");
 			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 			break;
@@ -593,9 +593,9 @@ void MaintainInfiniteAmmo()
 
 		if (GetAsyncKeyState(VK_NUMPAD1) & 0x8000)
 		{
+			WaitForKeyRelease(VK_NUMPAD1);
 			infiniteAmmoEnabled = false;
 			weaponComponent->gunAmmo = originalAmmoValue;
-			WaitForKeyRelease(VK_NUMPAD1);
 			system("cls");
 			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 			break;
@@ -642,9 +642,9 @@ void MaintainPowerfulAmmo()
 
 		if (GetAsyncKeyState(VK_NUMPAD5) & 0x8000)
 		{
+			WaitForKeyRelease(VK_NUMPAD5);
 			powerfulAmmoEnabled = false;
 			currentWeapon4->GunDamage = originalGunDamageValue;
-			WaitForKeyRelease(VK_NUMPAD5);
 			system("cls");
 			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 			break;
@@ -691,9 +691,9 @@ void MaintainNoSpread()
 
 		if (GetAsyncKeyState(VK_NUMPAD4) & 0x8000)
 		{
+			WaitForKeyRelease(VK_NUMPAD4);
 			noSpreadEnabled = false;
 			currentWeapon5->GunSpread = originalGunSpreadValue;
-			WaitForKeyRelease(VK_NUMPAD4);
 			system("cls");
 			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 			break;
@@ -740,9 +740,9 @@ void MaintainMovementSpeed()
 
 		if (GetAsyncKeyState(VK_F2) & 0x8000)
 		{
+			WaitForKeyRelease(VK_F2);
 			movementSpeedEnabled = false;
 			player->PlayerSpeed = originalPlayerSpeedValue;
-			WaitForKeyRelease(VK_F2);
 			system("cls");
 			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 			break;
@@ -789,9 +789,9 @@ void MaintainFishEye()
 
 		if (GetAsyncKeyState(VK_F6) & 0x8000)
 		{
+			WaitForKeyRelease(VK_F6);
 			fishEyeEnabled = false;
 			settings->PlayerFOV = originalPlayerFovValue;
-			WaitForKeyRelease(VK_F6);
 			system("cls");
 			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 			break;
@@ -862,12 +862,7 @@ void MaintainKnifeDistance()
 		bool valid = knifePtr && !IsBadReadPtr(reinterpret_cast<void*>(knifePtr), sizeof(Knife));
 
 		if (!valid)
-		{
-			knifeDistanceEnabled = false;
-			system("cls");
-			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
-			break;
-		}
+			continue;
 
 		Knife* knife = reinterpret_cast<Knife*>(knifePtr);
 		if (knife->knifeDistancePlayers == 1.3f)
@@ -878,10 +873,10 @@ void MaintainKnifeDistance()
 
 		if (GetAsyncKeyState(VK_NUMPAD9) & 0x8000)
 		{
+			WaitForKeyRelease(VK_NUMPAD9);
 			knifeDistanceEnabled = false;
 			knife->knifeDistancePlayers = 1.3f;
 			knife->knifeDistanceWalls = 1.3f;
-			WaitForKeyRelease(VK_NUMPAD9);
 			system("cls");
 			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 			break;
@@ -925,9 +920,9 @@ void MaintainGodMode()
 
 		if (GetAsyncKeyState(VK_F1) & 0x8000)
 		{
+			WaitForKeyRelease(VK_F1);
 			godModeEnabled = false;
 			health->Health = 120;
-			WaitForKeyRelease(VK_F1);
 			system("cls");
 			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 			break;
@@ -973,9 +968,9 @@ void MaintainNoClip()
 
 		if (GetAsyncKeyState(VK_F3) & 0x8000)
 		{
+			WaitForKeyRelease(VK_F3);
 			noClipEnabled = false;
 			noClip->NoClip = originalNoClipValue;
-			WaitForKeyRelease(VK_F3);
 			system("cls");
 			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 			break;
@@ -1020,10 +1015,10 @@ void MaintainDroneSpeed()
 
 		if (GetAsyncKeyState(VK_F10) & 0x8000)
 		{
+			WaitForKeyRelease(VK_F10);
 			droneSpeedEnabled = false;
 			drone3->DroneTopSpeed = 3.5;
 			drone3->DroneAcceleration = 4;
-			WaitForKeyRelease(VK_F10);
 			system("cls");
 			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 			break;
@@ -1067,9 +1062,9 @@ void MaintainDroneGravity()
 
 		if (GetAsyncKeyState(VK_F9) & 0x8000)
 		{
+			WaitForKeyRelease(VK_F9);
 			droneGravityEnabled = false;
 			drone2->DroneGravity = -9.800;
-			WaitForKeyRelease(VK_F9);
 			system("cls");
 			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 			break;
@@ -1120,13 +1115,13 @@ void MaintainTwitchBuff()
 
 		if (GetAsyncKeyState(VK_F11) & 0x8000)
 		{
+			WaitForKeyRelease(VK_F11);
 			twitchBuffEnabled = false;
 			drone1->DroneJump = 0;
 			drone1->DroneJumpDelay = 2;
 			drone1->DroneMaxAmmo = 3;
 			drone1->DroneWeaponReach = 7;
 			drone2->DroneAmmo = 0;
-			WaitForKeyRelease(VK_F11);
 			system("cls");
 			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 			break;
@@ -1153,8 +1148,6 @@ void ToggleLockWave()
 
 void MaintainLockWave()
 {
-	ULONGLONG invalidStartTime = 0;
-
 	while (lockWaveEnabled && !GetAsyncKeyState(VK_NUMPAD0))
 	{
 		Sleep(10);
@@ -1171,6 +1164,7 @@ void MaintainLockWave()
 		if (GetAsyncKeyState(VK_PRIOR) & 0x8000)
 		{
 			WaitForKeyRelease(VK_PRIOR);
+			lockWaveEnabled = false;
 			system("cls");
 			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 			break;
