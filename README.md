@@ -34,7 +34,7 @@ The CLI shows the current status of all toggles (ON/OFF) and updates live as hot
 |   [F4]  | Infinite Gadgets   | Never run out of throwable gadgets.                                                           |
 |   [F5]  | Can Go Outside     | Prevents you from dying when outside for longer than 10 seconds in Protect Hostage.           |
 
-
+test change cos git is stupid as fuck
 ---
 
 ## 📦 Setup Instructions
