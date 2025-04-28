@@ -15,26 +15,53 @@ The CLI shows the current status of all toggles (ON/OFF) and updates live as hot
 
 ## 🔧 Features
 
-| Keybind | Feature            | Description                                                                                   |
-|--------:|--------------------|-----------------------------------------------------------------------------------------------|
-|   [N/A] | Unlock All         | Automatically unlocks all skins, attachment skins, headgears, and uniforms.                   |
-|   [0]   | Uninject           | Safely removes the DLL and instructs the loader to terminate the executable.                  |
-|   [1]   | Infinite Ammo      | Never run out of bullets — keeps your clip perpetually full.                                  |
-|   [2]   | Rapid Fire         | Removes fire rate cap and makes all weapons fully-automatic.                                  |
-|   [3]   | No Recoil          | Removes weapon recoil for pinpoint accuracy.                                                  |
-|   [4]   | No Spread          | Removes hipfire spread for accurate run-and-gun.                                              |
-|   [5]   | InstaKill          | Makes every bullet lethal — 1 shot, 1 kill.                                                   |
-|   [6]   | Speedy Gonzales    | Greatly increases player movement speed.                                                      |
-|   [7]   | Fisheye FOV        | Modifies player and weapon FOV for a panoramic fisheye effect.                                |
-|   [8]   | Remove Sky         | Removes the current skybox.                                                                   |
-|   [9]   | Gun Caliber        | Alters current weapon's caliber to Skeleton Key, CSRX 300, DP27, or Mav's Torch.              |
-|   [F1]  | Glow ESP           | Highlights enemies through walls and smoke.                                                   |
-|   [F2]  | Run and Shoot      | Allows sprinting in any direction, while crouched, or while firing.                           |
-|   [F3]  | Bolt Script        | Eliminates bolt or pump delays on applicable weapons.                                         |
-|   [F4]  | Infinite Gadgets   | Never run out of throwable gadgets.                                                           |
-|   [F5]  | Can Go Outside     | Prevents you from dying when outside for longer than 10 seconds in Protect Hostage.           |
+| Keybind | Feature                 | Description                                                                                   |
+|--------:|-------------------------|-----------------------------------------------------------------------------------------------|
+|   [N/A] | Unlock All              | Automatically unlocks all skins, attachment skins, headgears, and uniforms.                   |
+|   [0]   | Uninject                | Safely removes the DLL and instructs the loader to terminate the executable.                  |
 
-test change cos git is stupid as fuck
+### 🧨 Weapon
+| Keybind | Feature                 | Description                                                                                   |
+|--------:|-------------------------|-----------------------------------------------------------------------------------------------|
+| [NUM1]  | Infinite Ammo           | Never run out of bullets — keeps your clip perpetually full.                                  |
+| [NUM2]  | Rapid Fire              | Removes fire rate cap and makes all weapons fully-automatic.                                  |
+| [NUM3]  | No Recoil               | Removes weapon recoil for pinpoint accuracy.                                                  |
+| [NUM4]  | No Spread               | Removes hipfire spread for accurate run-and-gun.                                              |
+| [NUM5]  | InstaKill               | Makes every bullet lethal — 1 shot, 1 kill.                                                   |
+| [NUM6]  | Run and Shoot           | Allows sprinting in any direction, while crouched, or while firing.                           |
+| [NUM7]  | Gun Caliber             | Alters the current weapon's caliber to Skeleton Key, CSRX 300, DP27, or Mav's Torch.          |
+| [NUM8]  | Remove Bolt Action      | Removes pump or bolt action animations for instant follow-up shots.                           |
+| [NUM9]  | Knife Reach             | Extends melee range dramatically.                                                             |
+
+### 🧍 Player
+| Keybind | Feature                 | Description                                                                                   |
+|--------:|-------------------------|-----------------------------------------------------------------------------------------------|
+| [F1]    | GodMode                 | Prevents the player from taking damage.                                                       |
+| [F2]    | Player Speed            | Greatly increases player movement speed.                                                      |
+| [F3]    | NoClip                  | Fly through walls and objects without collision.                                              |
+| [F4]    | Infinite Gadgets        | Never run out of throwable gadgets.                                                           |
+
+### 🖥️ Visual
+| Keybind | Feature                 | Description                                                                                   |
+|--------:|-------------------------|-----------------------------------------------------------------------------------------------|
+| [F5]    | Glow ESP                | Highlights enemies through walls and smoke.                                                   |
+| [F6]    | Fisheye FOV             | Modifies player and weapon FOV for a panoramic fisheye effect.                                |
+| [F7]    | Remove Sky              | Removes the current skybox for increased visibility.                                          |
+| [F8]    | Third Person            | Allows third-person camera view.                                                              |
+
+### 🚁 Drone
+| Keybind | Feature                 | Description                                                                                   |
+|--------:|-------------------------|-----------------------------------------------------------------------------------------------|
+| [F9]    | No Gravity              | Removes gravity from drones.                                                                  |
+| [F10]   | Drone Speed             | Greatly increases drone movement speed.                                                       |
+| [F11]   | Twitch / Echo Buff      | Infinite Twitch drone shots and Echo pings.                                                   |
+
+### 🛡️ Protect Hostage
+| Keybind | Feature                 | Description                                                                                   |
+|--------:|-------------------------|-----------------------------------------------------------------------------------------------|
+| [PGUP]  | Lock Wave               | Freezes enemy wave progression.                                                               |
+| [PGDN]  | Can Go Outside          | Prevents death when outside longer than 10 seconds.                                           |
+
 ---
 
 ## 📦 Setup Instructions
