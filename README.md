@@ -27,8 +27,8 @@ The CLI shows the current status of all toggles (ON/OFF) and updates live as hot
 | [NUM4]       | No Spread               | Removes hipfire spread for accurate run-and-gun.                                              |
 | [NUM5]       | InstaKill               | Makes every bullet lethal — 1 shot, 1 kill.                                                   |
 | [NUM6]       | Run and Shoot           | Allows sprinting in any direction, while crouched, or while firing.                           |
-| [NUM7]       | Gun Caliber             | Alters the current weapon's caliber to Skeleton Key, CSRX 300, DP27, or Mav's Torch.          |
-| [NUM8]       | Remove Bolt Action      | Removes pump or bolt action animations for instant follow-up shots.                           |
+| [NUM7]       | Gun Caliber             | Alters weapon caliber to Skeleton Key, CSRX 300, DP27, or Mav's Torch.                        |
+| [NUM8]       | Bolt Script             | Removes pump or bolt action animations for instant follow-up shots.                           |
 | [NUM9]       | Knife Reach             | Dramatically extends melee range.                                                             |
 | **PLAYER**   |                         |                                                                                               |
 | [F1]         | GodMode                 | Prevents the player from taking damage.                                                       |
@@ -63,7 +63,7 @@ The CLI shows the current status of all toggles (ON/OFF) and updates live as hot
 
 ## 📺 Showcase
 
-https://www.youtube.com/watch?v=V0JPKZH6EOM
+![Menu Showcase](image.png)
 
 ---
 
