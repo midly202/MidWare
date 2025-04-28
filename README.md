@@ -17,12 +17,10 @@ The CLI shows the current status of all toggles (ON/OFF) and updates live as hot
 
 | Keybind | Feature                 | Description                                                                                   |
 |--------:|-------------------------|-----------------------------------------------------------------------------------------------|
-|   [N/A] | Unlock All              | Automatically unlocks all skins, attachment skins, headgears, and uniforms.                   |
-|   [0]   | Uninject                | Safely removes the DLL and instructs the loader to terminate the executable.                  |
-
-### 🧨 Weapon
-| Keybind | Feature                 | Description                                                                                   |
-|--------:|-------------------------|-----------------------------------------------------------------------------------------------|
+|         | *MISC*                  |                                                                                               |
+| [N/A]   | Unlock All              | Automatically unlocks all skins, attachment skins, headgears, and uniforms.                   |
+| [0]     | Uninject                | Safely removes the DLL and instructs the loader to terminate the executable.                  |
+|         | *WEAPON*                |                                                                                               |
 | [NUM1]  | Infinite Ammo           | Never run out of bullets — keeps your clip perpetually full.                                  |
 | [NUM2]  | Rapid Fire              | Removes fire rate cap and makes all weapons fully-automatic.                                  |
 | [NUM3]  | No Recoil               | Removes weapon recoil for pinpoint accuracy.                                                  |
@@ -32,33 +30,21 @@ The CLI shows the current status of all toggles (ON/OFF) and updates live as hot
 | [NUM7]  | Gun Caliber             | Alters the current weapon's caliber to Skeleton Key, CSRX 300, DP27, or Mav's Torch.          |
 | [NUM8]  | Remove Bolt Action      | Removes pump or bolt action animations for instant follow-up shots.                           |
 | [NUM9]  | Knife Reach             | Extends melee range dramatically.                                                             |
-
-### 🧍 Player
-| Keybind | Feature                 | Description                                                                                   |
-|--------:|-------------------------|-----------------------------------------------------------------------------------------------|
+|         | *PLAYER*                |                                                                                               |
 | [F1]    | GodMode                 | Prevents the player from taking damage.                                                       |
 | [F2]    | Player Speed            | Greatly increases player movement speed.                                                      |
 | [F3]    | NoClip                  | Fly through walls and objects without collision.                                              |
 | [F4]    | Infinite Gadgets        | Never run out of throwable gadgets.                                                           |
-
-### 🖥️ Visual
-| Keybind | Feature                 | Description                                                                                   |
-|--------:|-------------------------|-----------------------------------------------------------------------------------------------|
+|         | *VISUAL*                |                                                                                               |
 | [F5]    | Glow ESP                | Highlights enemies through walls and smoke.                                                   |
 | [F6]    | Fisheye FOV             | Modifies player and weapon FOV for a panoramic fisheye effect.                                |
 | [F7]    | Remove Sky              | Removes the current skybox for increased visibility.                                          |
 | [F8]    | Third Person            | Allows third-person camera view.                                                              |
-
-### 🚁 Drone
-| Keybind | Feature                 | Description                                                                                   |
-|--------:|-------------------------|-----------------------------------------------------------------------------------------------|
+|         | *DRONE*                 |                                                                                               |
 | [F9]    | No Gravity              | Removes gravity from drones.                                                                  |
 | [F10]   | Drone Speed             | Greatly increases drone movement speed.                                                       |
 | [F11]   | Twitch / Echo Buff      | Infinite Twitch drone shots and Echo pings.                                                   |
-
-### 🛡️ Protect Hostage
-| Keybind | Feature                 | Description                                                                                   |
-|--------:|-------------------------|-----------------------------------------------------------------------------------------------|
+|         | *PROTECT HOSTAGE*       |                                                                                               |
 | [PGUP]  | Lock Wave               | Freezes enemy wave progression.                                                               |
 | [PGDN]  | Can Go Outside          | Prevents death when outside longer than 10 seconds.                                           |
 
