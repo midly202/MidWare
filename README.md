@@ -17,12 +17,11 @@ The CLI shows the current status of all toggles (ON/OFF) and updates live as hot
 
 | Keybind | Feature                 | Description                                                                                   |
 |--------:|-------------------------|-----------------------------------------------------------------------------------------------|
-|         |                         |                                                                                               |
-|         | **MISC**                |                                                                                               |
+|         | ⚙️**MISC**              |                                                                                               |
 | [N/A]   | Unlock All              | Automatically unlocks all skins, attachment skins, headgears, and uniforms.                   |
 | [NUM0]  | Uninject                | Safely removes the DLL and instructs the loader to terminate the executable.                  |
 |         |                         |                                                                                               |
-|         | **WEAPON**              |                                                                                               |
+|         | 🔫**WEAPON**            |                                                                                               |
 | [NUM1]  | Infinite Ammo           | Never run out of bullets — keeps your clip perpetually full.                                  |
 | [NUM2]  | Rapid Fire              | Removes fire rate cap and makes all weapons fully-automatic.                                  |
 | [NUM3]  | No Recoil               | Removes weapon recoil for pinpoint accuracy.                                                  |
@@ -33,24 +32,24 @@ The CLI shows the current status of all toggles (ON/OFF) and updates live as hot
 | [NUM8]  | Remove Bolt Action      | Removes pump or bolt action animations for instant follow-up shots.                           |
 | [NUM9]  | Knife Reach             | Dramatically extends melee range.                                                             |
 |         |                         |                                                                                               |
-|         | **PLAYER**              |                                                                                               |
+|         | 🧍**PLAYER**            |                                                                                               |
 | [F1]    | GodMode                 | Prevents the player from taking damage.                                                       |
 | [F2]    | Player Speed            | Greatly increases player movement speed.                                                      |
 | [F3]    | NoClip                  | Walk through walls and objects without collision.                                             |
 | [F4]    | Infinite Gadgets        | Never run out of throwable gadgets.                                                           |
 |         |                         |                                                                                               |
-|         | **VISUAL**              |                                                                                               |
+|         | 👁️**VISUAL**            |                                                                                               |
 | [F5]    | Glow ESP                | Highlights enemies through walls and smoke.                                                   |
 | [F6]    | Fisheye FOV             | Modifies FOV for a panoramic fisheye effect.                                                  |
 | [F7]    | Remove Sky              | Removes the current skybox.                                                                   |
 | [F8]    | Third Person            | Allows third-person camera view.                                                              |
 |         |                         |                                                                                               |
-|         | **DRONE**               |                                                                                               |
+|         | 🛸**DRONE**             |                                                                                               |
 | [F9]    | No Gravity              | Removes gravity from drones.                                                                  |
 | [F10]   | Drone Speed             | Greatly increases drone movement speed.                                                       |
 | [F11]   | Twitch / Echo Buff      | Infinite ammo, range, and rapid fire for Twitch / Echo drones.                                |
 |         |                         |                                                                                               |
-|         | **T-HUNT**              |                                                                                               |
+|         | 🎯**T-HUNT**            |                                                                                               |
 | [PGUP]  | Lock Wave               | Locks the current wave at Wave 0, allowing infinite enemy waves without end.                  |
 | [PGDN]  | Can Go Outside          | Prevents death when outside longer than 10 seconds.                                           |
 
