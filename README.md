@@ -19,7 +19,7 @@ The CLI shows the current status of all toggles (ON/OFF) and updates live as hot
 |--------:|-------------------------|-----------------------------------------------------------------------------------------------|
 |         | **MISC**                |                                                                                               |
 | [N/A]   | Unlock All              | Automatically unlocks all skins, attachment skins, headgears, and uniforms.                   |
-| [0]     | Uninject                | Safely removes the DLL and instructs the loader to terminate the executable.                  |
+| [NUM0]  | Uninject                | Safely removes the DLL and instructs the loader to terminate the executable.                  |
 |         | **WEAPON**              |                                                                                               |
 | [NUM1]  | Infinite Ammo           | Never run out of bullets — keeps your clip perpetually full.                                  |
 | [NUM2]  | Rapid Fire              | Removes fire rate cap and makes all weapons fully-automatic.                                  |
@@ -44,7 +44,7 @@ The CLI shows the current status of all toggles (ON/OFF) and updates live as hot
 | [F9]    | No Gravity              | Removes gravity from drones.                                                                  |
 | [F10]   | Drone Speed             | Greatly increases drone movement speed.                                                       |
 | [F11]   | Twitch / Echo Buff      | Infinite Twitch drone shots and Echo pings.                                                   |
-|         | **PROTECT HOSTAGE**     |                                                                                               |
+|         | **T-HUNT**              |                                                                                               |
 | [PGUP]  | Lock Wave               | Freezes enemy wave progression.                                                               |
 | [PGDN]  | Can Go Outside          | Prevents death when outside longer than 10 seconds.                                           |
 
