@@ -52,12 +52,12 @@ The CLI shows the current status of all toggles (ON/OFF) and updates live as hot
 
 ## 📦 Setup Instructions
 
-1. Compile both the **internal DLL** and the **external loader**.
+1. Compile both the **internal DLL** and the **external loader**, or get them from the Release tab.
 2. Launch the loader (`MidWare.exe`) which will:
    - Inject the internal DLL into `RainbowSix.exe`.
    - Initialize shared memory for feature toggles.
 3. Use hotkeys in-game to enable/disable features.
-4. Exit cleanly using `[NUMPAD 0]` or by closing the game.
+4. Exit cleanly using `[NUM0]` or by closing the game.
 
 ---
 
