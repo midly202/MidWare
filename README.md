@@ -47,3 +47,13 @@ test change cos git is stupid as fuck
 4. Exit cleanly using `[NUMPAD 0]` or by closing the game.
 
 ---
+
+## 📺 Showcase
+
+https://www.youtube.com/watch?v=V0JPKZH6EOM
+
+---
+
+## 📝 Notes
+
+Still a WIP. More features are going to be added.
