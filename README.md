@@ -66,7 +66,3 @@ The CLI shows the current status of all toggles (ON/OFF) and updates live as hot
 ![Menu Showcase](image.png)
 
 ---
-
-## 📝 Notes
-
-Still a WIP. More features are going to be added.
