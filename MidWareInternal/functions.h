@@ -86,6 +86,9 @@ extern CCurrentWeapon5* currentWeapon5;
 extern CPlayer* player;
 extern Settings* settings;
 extern WeaponComponent* weaponComponent;
+extern Health* health;
+extern CNoClip* noClip;
+extern CThuntWave* thuntWave;
 
 extern bool noRecoilEnabled;
 extern bool fireRateEnabled;
@@ -100,6 +103,17 @@ extern bool boltScriptEnabled;
 extern bool infiniteGadgetEnabled;
 extern bool goOutsideEnabled;
 extern bool skyBoxEnabled;
+extern bool knifeDistanceEnabled;
+extern bool godModeEnabled;
+extern bool noClipEnabled;
+extern bool thirdPersonEnabled;
+extern bool droneJumpEnabled;
+extern bool droneSpeedEnabled;
+extern bool droneGravityEnabled;
+extern bool twitchBuffEnabled;
+extern bool echoBuffEnabled;
+extern bool plantAnywhereEnabled;
+extern bool lockWaveEnabled;
 extern int gunCaliberIndex;
 int64_t originalRecoilValue;
 int64_t originalGunSoundValue;
@@ -112,17 +126,27 @@ int8_t originalFireModeValue;
 float originalGunSpreadValue;
 float originalPlayerFovValue;
 float originalGunFovValue;
+float originalKnifeValue1 = 1.3;
+float originalKnifeValue2 = 1.3;
+float originalNoClipValue;
 
 uint32_t gunCaliberModes[] = {
 	3864566559, // Regular Rifle
-	// 224916230// Regular Pistol
+	//224916230 // Regular Pistol
 	//1635385480// Regular SMG
 	1216095593, // Skeleton Key
-	3683118896, // Kali’s Sniper
-	2249646560, // Tachanka’s DP27
-	// 54247478 // Tachanka's DP27 (stationary turret) 
-	2097060903  // Maverick’s Blowtorch
+	3683118896, // Kali's Sniper
+	2249646560, // Tachanka's DP27
+	//54247478  // Tachanka's DP27 (stationary turret) 
+	2097060903  // Maverick's Blowtorch
+	//1800674797// Maestro's Turret
+	//1586594484// BOSG
+	//1314319139// Bailiff
 };
+
+// ------------------------------------------------------------------------- \\
+// -----------------------------Helper Functions---------------------------- \\
+// ------------------------------------------------------------------------- \\ 
 
 void MsgBoxAddy(uintptr_t addy)
 {
@@ -226,40 +250,91 @@ uintptr_t FindPattern(const char* module, const char* pattern, const char* mask)
 	return NULL;
 }
 
-void showMenuInit()
+void WaitForKeyRelease(int vkKey)
 {
-	std::cout << RGB_PURPLE + BOLD << R"(
-+-----------------------------------------+
-|     /\___/\                             |
-|    ( o   o )   Injected!                |
-|    (  =^=  )                            |
-|    (        )                           |
-|    (         )   Read that warning.     |
-|    (          )))))))))))))))           |
-+-----------------------------------------+
-)" << RESET << "\n";
-
-	std::cout << BOLD + RGB_PURPLE + "Internal" + RESET << "\n";
-	std::cout << "[1] [" << RED + "OFF" + RESET << "] Infinite Ammo\n";
-	std::cout << "[2] [" << RED + "OFF" + RESET << "] Rapid Fire*\n";
-	std::cout << "[3] [" << RED + "OFF" + RESET << "] No Recoil*\n";
-	std::cout << "[4] [" << RED + "OFF" + RESET << "] No Spread*\n";
-	std::cout << "[5] [" << RED + "OFF" + RESET << "] Instant Kill*\n";
-	std::cout << "[6] [" << RED + "OFF" + RESET << "] Speedy Gonzales*\n";
-	std::cout << "[7] [" << RED + "OFF" + RESET << "] Fisheye FOV\n";
-	std::cout << "[8] [" << RED + "OFF" + RESET << "] Remove Sky\n";
-	std::cout << "[9] [" << RED + "OFF" + RESET << "] Gun Caliber*\n\n";
-	std::cout << BOLD + RGB_PURPLE + "External" + RESET << "\n";
-	std::cout << "[F1] [" << RED + "OFF" + RESET << "] Glow ESP\n";
-	std::cout << "[F2] [" << RED + "OFF" + RESET << "] Run and Shoot\n";
-	std::cout << "[F3] [" << RED + "OFF" + RESET << "] Remove Pump Action / Bolt Action\n";
-	std::cout << "[F4] [" << RED + "OFF" + RESET << "] Infinite Gadgets\n";
-	std::cout << "[F5] [" << RED + "OFF" + RESET << "] Can Go Outside \n";
-	std::cout << "\n" + BOLD + BRIGHT_RED +
-		"Warning: The game may crash if features marked with a * are left enabled while leaving or joining sessions.\n" + RESET;
+	while (GetAsyncKeyState(vkKey)) Sleep(10);
 }
 
-void showMenu(bool noRecoil, bool fireRate, bool infiniteAmmo, bool powerfulAmmo, bool noSpread, bool movementSpeed, bool fishEye, bool glowEsp, bool runShoot, bool boltScript, bool skybox, bool infGadget, bool goOutside, int caliber)
+bool CanUninject(bool thread1Running, bool thread2Running, bool thread3Running, bool thread4Running, bool thread5Running, bool thread6Running, bool thread7Running, bool thread8Running, bool thread9Running, bool thread10Running, bool thread11Running, bool thread12Running, bool thread13Running, bool thread14Running)
+{
+	if (thread1Running || thread2Running || thread3Running || thread4Running || thread5Running || thread6Running || thread7Running || thread8Running || thread9Running || thread10Running || thread11Running || thread12Running || thread13Running || thread14Running)
+		return false; // Returns false if a thread is still running
+	else
+		return true; // Returns true if all threads have exited
+}
+
+uintptr_t GetPointer(uintptr_t base, const std::vector<uintptr_t>& offsets)
+{
+	uintptr_t addr = base;
+	MEMORY_BASIC_INFORMATION mbi;
+
+	for (auto offset : offsets)
+	{
+		uintptr_t ptrToCheck = addr + offset;
+
+		if (!VirtualQuery((void*)ptrToCheck, &mbi, sizeof(mbi)) || mbi.State != MEM_COMMIT)
+			return 0; // invalid memory, abort
+
+		addr = *(uintptr_t*)ptrToCheck;
+	}
+	return addr;
+}
+
+
+// ------------------------------------------------------------------------- \\
+// ------------------------------Cheat Functions---------------------------- \\
+// ------------------------------------------------------------------------- \\ 
+
+void showMenuInit()
+{
+	std::cout << RED + BOLD << R"(
+ +-----------------------------------------+
+ |     /\___/\                             |
+ |    ( o   o )   Injected!                |
+ |    (  =^=  )                            |
+ |    (        )                           |
+ |    (         ) )" << INVERT + "Scanning for patterns..." + RESET + RED + BOLD << R"( |
+ |    (          )))))))))))))))           |
+ +-----------------------------------------+
+)" << RESET;
+
+	std::cout << RED + BOLD + INVERT +
+		" WARNING: FEATURES WRITTEN IN RED ARE UNSTABLE AND CAN CAUSE CRASHES. \n" + RESET;
+
+	std::cout << BOLD + RGB_PURPLE + " Weapon" + RESET << "\n";
+	std::cout << " [NUM1] [" << RED + "OFF" + RESET << "] Infinite Ammo\n";
+	std::cout << " [NUM2] [" << RED + "OFF" + RESET << "] Rapid Fire\n";
+	std::cout << " [NUM3] [" << RED + "OFF" + RESET << "] No Recoil\n";
+	std::cout << " [NUM4] [" << RED + "OFF" + RESET << "] No Spread\n";
+	std::cout << " [NUM5] [" << RED + "OFF" + RESET << "] Instant Kill\n";
+	std::cout << " [NUM6] [" << RED + "OFF" + RESET << "] Run and Shoot\n";
+	std::cout << " [NUM7] [" << RED + "OFF" + RESET + "] Gun Caliber " << "\n";
+	std::cout << " [NUM8] [" << RED + "OFF" + RESET << "] Remove Pump Action / Bolt Action\n";
+	std::cout << " [NUM9] [" << RED + "OFF" + RESET << "]" + RED + " Knife Reach" + RESET + "\n\n";
+
+	std::cout << BOLD + RGB_PURPLE + " Player" + RESET << "\n";
+	std::cout << " [F1]   [" << RED + "OFF" + RESET << "] GodMode\n";
+	std::cout << " [F2]   [" << RED + "OFF" + RESET + "] Player Speed\n";
+	std::cout << " [F3]   [" << RED + "OFF" + RESET << "] NoClip\n";
+	std::cout << " [F4]   [" << RED + "OFF" + RESET << "] Infinite Gadgets\n\n";
+
+	std::cout << BOLD + RGB_PURPLE + " Visual" + RESET << "\n";
+	std::cout << " [F5]   [" << RED + "OFF" + RESET << "] Glow ESP\n";
+	std::cout << " [F6]   [" << RED + "OFF" + RESET << "] Fisheye FOV\n";
+	std::cout << " [F7]   [" << RED + "OFF" + RESET << "] Remove Sky\n";
+	std::cout << " [F8]   [" << RED + "OFF" + RESET << "]" + RED + " Third Person\n\n";
+
+	std::cout << BOLD + RGB_PURPLE + " Drone" + RESET << "\n";
+	std::cout << " [F9]   [" << RED + "OFF" + RESET << "] No Gravity\n";
+	std::cout << " [F10]  [" << RED + "OFF" + RESET << "] Drone Speed\n";
+	std::cout << " [F11]  [" << RED + "OFF" + RESET << "] Twitch / Echo Buff\n\n";
+
+	std::cout << BOLD + RGB_PURPLE + " Protect Hostage" + RESET << "\n";
+	std::cout << " [PGUP] [" << RED + "OFF" + RESET << "] Lock Wave\n";
+	std::cout << " [PGDN] [" << RED + "OFF" + RESET << "] Can Go Outside\n";
+}
+
+void showMenu(bool infiniteAmmo, bool fireRate, bool noRecoil, bool noSpread, bool powerfulAmmo, bool runShoot, int caliber, bool boltScript, bool knifeDistance, bool godMode, bool movementSpeed, bool noClip, bool infGadget, bool glowEsp, bool fishEye, bool skybox, bool thirdPerson, bool droneSpeed, bool droneGravity, bool twitchBuff, bool lockWave, bool goOutside)
 {
 	std::string caliberToggle;
 	std::string caliberText;
@@ -292,73 +367,47 @@ void showMenu(bool noRecoil, bool fireRate, bool infiniteAmmo, bool powerfulAmmo
 	}
 
 	std::cout << RGB_PURPLE + BOLD << R"(
-+-----------------------------------------+
-|     /\___/\                             |
-|    ( o   o )   Injected!                |
-|    (  =^=  )                            |
-|    (        )                           |
-|    (         )   )" << BLINK + BRIGHT_RED + "[0] Uninject" + RESET + RGB_PURPLE + BOLD << R"(           |
-|    (          )))))))))))))))           |
-+-----------------------------------------+
+ +-----------------------------------------+
+ |     /\___/\                             |
+ |    ( o   o )   Injected!                |
+ |    (  =^=  )                            |
+ |    (        )                           |
+ |    (         ) )" << BLINK + RED + "[NUM0] Uninject" + RESET + RGB_PURPLE + BOLD << R"(          |
+ |    (          )))))))))))))))           |
+ +-----------------------------------------+
 )" << RESET << "\n";
 
-	std::cout << BOLD + RGB_PURPLE + "Internal" + RESET << "\n";
-	std::cout << "[1] [" << (infiniteAmmo ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Infinite Ammo\n";
-	std::cout << "[2] [" << (fireRate ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Rapid Fire\n";
-	std::cout << "[3] [" << (noRecoil ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] No Recoil\n";
-	std::cout << "[4] [" << (noSpread ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] No Spread\n";
-	std::cout << "[5] [" << (powerfulAmmo ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Instant Kill\n";
-	std::cout << "[6] [" << (movementSpeed ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Speedy Gonzales\n";
-	std::cout << "[7] [" << (fishEye ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Fisheye FOV\n";
-	std::cout << "[8] [" << (skybox ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Remove Sky\n";
-	std::cout << "[9] " << caliberToggle << " Gun Caliber " << caliberText << "\n\n";
-	std::cout << BOLD + RGB_PURPLE + "External" + RESET << "\n";
-	std::cout << "[F1] [" << (glowEsp ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Glow ESP\n";
-	std::cout << "[F2] [" << (runShoot ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Run and Shoot\n";
-	std::cout << "[F3] [" << (boltScript ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Remove Pump Action / Bolt Action\n";
-	std::cout << "[F4] [" << (infGadget ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Infinite Gadgets\n";
-	std::cout << "[F5] [" << (goOutside ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Can Go Outside\n\n";
-}
+	std::cout << BOLD + RGB_PURPLE + " Weapon" + RESET << "\n";
+	std::cout << " [NUM1] [" << (infiniteAmmo ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Infinite Ammo\n";
+	std::cout << " [NUM2] [" << (fireRate ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Rapid Fire\n";
+	std::cout << " [NUM3] [" << (noRecoil ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] No Recoil\n";
+	std::cout << " [NUM4] [" << (noSpread ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] No Spread\n";
+	std::cout << " [NUM5] [" << (powerfulAmmo ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Instant Kill\n";
+	std::cout << " [NUM6] [" << (runShoot ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Run and Shoot\n";
+	std::cout << " [NUM7] " << caliberToggle << " Gun Caliber " << caliberText << "\n";
+	std::cout << " [NUM8] [" << (boltScript ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Remove Pump Action / Bolt Action\n";
+	std::cout << " [NUM9] [" << (knifeDistance ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Knife Reach\n\n";
 
-void WaitForKeyRelease(int vkKey)
-{
-	while (GetAsyncKeyState(vkKey)) Sleep(10);
-}
+	std::cout << BOLD + RGB_PURPLE + " Player" + RESET << "\n";
+	std::cout << " [F1]   [" << (godMode ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] GodMode\n";
+	std::cout << " [F2]   [" << (movementSpeed ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Player Speed\n";
+	std::cout << " [F3]   [" << (noClip ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] NoClip\n";
+	std::cout << " [F4]   [" << (infGadget ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Infinite Gadgets\n\n";
 
-bool CanUninject(bool thread1Running, bool thread2Running, bool thread3Running, bool thread4Running, bool thread5Running, bool thread6Running, bool thread7Running, bool thread8Running)
-{
-	if (thread1Running || thread2Running || thread3Running || thread4Running || thread5Running || thread6Running || thread7Running || thread8Running)
-		return false; // Returns false if a thread is still running
-	else
-		return true; // Returns true if all threads have exited
-}
+	std::cout << BOLD + RGB_PURPLE + " Visual" + RESET << "\n";
+	std::cout << " [F5]   [" << (glowEsp ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Glow ESP\n";
+	std::cout << " [F6]   [" << (fishEye ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Fisheye FOV\n";
+	std::cout << " [F7]   [" << (skybox ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Remove Sky\n";
+	std::cout << " [F8]   [" << (thirdPerson ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Third Person\n\n";
 
-uintptr_t GetPointer(uintptr_t base, std::vector<uintptr_t> offsets)
-{
-	uintptr_t addr = base;
-	for (size_t i = 0; i < offsets.size(); ++i)
-	{
-		if (!addr) return 0;
-		addr = *reinterpret_cast<uintptr_t*>(addr + offsets[i]);
-	}
-	return addr;
-}
+	std::cout << BOLD + RGB_PURPLE + " Drone" + RESET << "\n";
+	std::cout << " [F9]   [" << (droneGravity ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] No Gravity\n";
+	std::cout << " [F10]  [" << (droneSpeed ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Drone Speed\n";
+	std::cout << " [F11]  [" << (twitchBuff ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Twitch / Echo Buff\n\n";
 
-void CallExternal(const char* exePath)
-{
-	STARTUPINFO si = { sizeof(si) };
-	PROCESS_INFORMATION pi;
-
-	if (!CreateProcessA(exePath, NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
-	{
-		std::cerr << "CreateProcess failed. Error: " << GetLastError() << "\n";
-	}
-	else
-	{
-		WaitForSingleObject(pi.hProcess, INFINITE);
-		CloseHandle(pi.hProcess);
-		CloseHandle(pi.hThread);
-	}
+	std::cout << BOLD + RGB_PURPLE + " Protect Hostage" + RESET << "\n";
+	std::cout << " [PGUP] [" << (lockWave ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Lock Wave\n";
+	std::cout << " [PGDN] [" << (goOutside ? GREEN + "ON" + RESET : RED + "OFF" + RESET) << "] Can Go Outside\n";
 }
 
 void ToggleNoRecoil()
@@ -378,7 +427,7 @@ void ToggleNoRecoil()
 	}
 	WaitForKeyRelease(VK_NUMPAD3);
 	system("cls");
-	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
+	showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 }
 
 void MaintainNoRecoil()
@@ -398,11 +447,22 @@ void MaintainNoRecoil()
 			{
 				invalidStartTime = GetTickCount64(); // start the "invalid" timer
 			}
-			else if (GetTickCount64() - invalidStartTime >= 4000)
+			else if (GetTickCount64() - invalidStartTime >= 2000)
 			{
+				infiniteAmmoEnabled = false;
+				fireRateEnabled = false;
 				noRecoilEnabled = false;
+				noSpreadEnabled = false;
+				powerfulAmmoEnabled = false;
+				gunCaliberIndex = 0;
+				knifeDistanceEnabled = false;
+				godModeEnabled = false;
+				movementSpeedEnabled = false;
+				droneSpeedEnabled = false;
+				droneGravityEnabled = false;
+				twitchBuffEnabled = false;
 				system("cls");
-				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
+				showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 				break;
 			}
 			continue;
@@ -421,7 +481,7 @@ void MaintainNoRecoil()
 			currentWeapon2->pGunRecoil = originalRecoilValue;
 			WaitForKeyRelease(VK_NUMPAD3);
 			system("cls");
-			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
+			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 			break;
 		}
 	}
@@ -450,7 +510,7 @@ void ToggleFireRate()
 	}
 	WaitForKeyRelease(VK_NUMPAD2);
 	system("cls");
-	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
+	showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 }
 
 void MaintainFireRate()
@@ -463,27 +523,11 @@ void MaintainFireRate()
 		uintptr_t weaponPtr1 = GetPointer(baseAddress, offsets::WeaponComponent);
 		uintptr_t weaponPtr2 = GetPointer(baseAddress, offsets::CCurrentWeapon2);
 		uintptr_t weaponPtr3 = GetPointer(baseAddress, offsets::CCurrentWeapon3);
-		bool valid = weaponPtr1 && weaponPtr2 && weaponPtr3 && !IsBadReadPtr(reinterpret_cast<void*>(weaponPtr1), sizeof(WeaponComponent)) && !IsBadReadPtr(reinterpret_cast<void*>(weaponPtr2), sizeof(CCurrentWeapon2)) && !IsBadReadPtr(reinterpret_cast<void*>(weaponPtr3), sizeof(CCurrentWeapon3));
+
+		bool valid = weaponPtr1 && weaponPtr2 && weaponPtr3;
 
 		if (!valid)
-		{
-			if (invalidStartTime == 0)
-			{
-				invalidStartTime = GetTickCount64(); // start the "invalid" timer
-			}
-			else if (GetTickCount64() - invalidStartTime >= 3750)
-			{
-				fireRateEnabled = false;
-				system("cls");
-				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
-				break;
-			}
 			continue;
-		}
-		else
-		{
-			invalidStartTime = 0; // reset timer if memory becomes valid again
-		}
 
 		WeaponComponent* currentWeapon1 = reinterpret_cast<WeaponComponent*>(weaponPtr1);
 		CCurrentWeapon2* currentWeapon2 = reinterpret_cast<CCurrentWeapon2*>(weaponPtr2);
@@ -504,7 +548,7 @@ void MaintainFireRate()
 			currentWeapon3->GunFireRate = originalFirerateValue;
 			WaitForKeyRelease(VK_NUMPAD2);
 			system("cls");
-			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
+			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 			break;
 		}
 	}
@@ -527,7 +571,7 @@ void ToggleInfiniteAmmo()
 	}
 	WaitForKeyRelease(VK_NUMPAD1);
 	system("cls");
-	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
+	showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 }
 
 void MaintainInfiniteAmmo()
@@ -541,24 +585,7 @@ void MaintainInfiniteAmmo()
 		bool valid = weaponPtr && !IsBadReadPtr(reinterpret_cast<void*>(weaponPtr), sizeof(WeaponComponent));
 
 		if (!valid)
-		{
-			if (invalidStartTime == 0)
-			{
-				invalidStartTime = GetTickCount64(); // start the "invalid" timer
-			}
-			else if (GetTickCount64() - invalidStartTime >= 1500)
-			{
-				infiniteAmmoEnabled = false;
-				system("cls");
-				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
-				break;
-			}
 			continue;
-		}
-		else
-		{
-			invalidStartTime = 0; // reset timer if memory becomes valid again
-		}
 
 		WeaponComponent* weaponComponent = reinterpret_cast<WeaponComponent*>(weaponPtr);
 		weaponComponent->gunAmmo = 9999;
@@ -570,7 +597,7 @@ void MaintainInfiniteAmmo()
 			weaponComponent->gunAmmo = originalAmmoValue;
 			WaitForKeyRelease(VK_NUMPAD1);
 			system("cls");
-			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
+			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 			break;
 		}
 	}
@@ -593,7 +620,7 @@ void TogglePowerfulAmmo()
 	}
 	WaitForKeyRelease(VK_NUMPAD5);
 	system("cls");
-	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
+	showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 }
 
 void MaintainPowerfulAmmo()
@@ -607,24 +634,7 @@ void MaintainPowerfulAmmo()
 		bool valid = weaponPtr && !IsBadReadPtr(reinterpret_cast<void*>(weaponPtr), sizeof(CCurrentWeapon4));
 
 		if (!valid)
-		{
-			if (invalidStartTime == 0)
-			{
-				invalidStartTime = GetTickCount64(); // start the "invalid" timer
-			}
-			else if (GetTickCount64() - invalidStartTime >= 5500)
-			{
-				powerfulAmmoEnabled = false;
-				system("cls");
-				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
-				break;
-			}
 			continue;
-		}
-		else
-		{
-			invalidStartTime = 0; // reset timer if memory becomes valid again
-		}
 
 		CCurrentWeapon4* currentWeapon4 = reinterpret_cast<CCurrentWeapon4*>(weaponPtr);
 		currentWeapon4->GunDamage = 9999;
@@ -636,7 +646,7 @@ void MaintainPowerfulAmmo()
 			currentWeapon4->GunDamage = originalGunDamageValue;
 			WaitForKeyRelease(VK_NUMPAD5);
 			system("cls");
-			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
+			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 			break;
 		}
 	}
@@ -659,7 +669,7 @@ void ToggleNoSpread()
 	}
 	WaitForKeyRelease(VK_NUMPAD4);
 	system("cls");
-	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
+	showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 }
 
 void MaintainNoSpread()
@@ -673,24 +683,7 @@ void MaintainNoSpread()
 		bool valid = weaponPtr && !IsBadReadPtr(reinterpret_cast<void*>(weaponPtr), sizeof(CCurrentWeapon5));
 
 		if (!valid)
-		{
-			if (invalidStartTime == 0)
-			{
-				invalidStartTime = GetTickCount64(); // start the "invalid" timer
-			}
-			else if (GetTickCount64() - invalidStartTime >= 5000)
-			{
-				noSpreadEnabled = false;
-				system("cls");
-				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
-				break;
-			}
 			continue;
-		}
-		else
-		{
-			invalidStartTime = 0; // reset timer if memory becomes valid again
-		}
 
 		CCurrentWeapon5* currentWeapon5 = reinterpret_cast<CCurrentWeapon5*>(weaponPtr);
 		currentWeapon5->GunSpread = 0;
@@ -702,7 +695,7 @@ void MaintainNoSpread()
 			currentWeapon5->GunSpread = originalGunSpreadValue;
 			WaitForKeyRelease(VK_NUMPAD4);
 			system("cls");
-			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
+			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 			break;
 		}
 	}
@@ -723,9 +716,9 @@ void ToggleMovementSpeed()
 		CPlayer* player = reinterpret_cast<CPlayer*>(playerPtr);
 		originalPlayerSpeedValue = player->PlayerSpeed;
 	}
-	WaitForKeyRelease(VK_NUMPAD6);
+	WaitForKeyRelease(VK_F2);
 	system("cls");
-	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
+	showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 }
 
 void MaintainMovementSpeed()
@@ -739,36 +732,19 @@ void MaintainMovementSpeed()
 		bool valid = playerPtr && !IsBadReadPtr(reinterpret_cast<void*>(playerPtr), sizeof(CPlayer));
 
 		if (!valid)
-		{
-			if (invalidStartTime == 0)
-			{
-				invalidStartTime = GetTickCount64(); // start the "invalid" timer
-			}
-			else if (GetTickCount64() - invalidStartTime >= 6000)
-			{
-				movementSpeedEnabled = false;
-				system("cls");
-				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
-				break;
-			}
 			continue;
-		}
-		else
-		{
-			invalidStartTime = 0; // reset timer if memory becomes valid again
-		}
 
 		CPlayer* player = reinterpret_cast<CPlayer*>(playerPtr);
 		player->PlayerSpeed = 250;
 
 
-		if (GetAsyncKeyState(VK_NUMPAD6) & 0x8000)
+		if (GetAsyncKeyState(VK_F2) & 0x8000)
 		{
 			movementSpeedEnabled = false;
 			player->PlayerSpeed = originalPlayerSpeedValue;
-			WaitForKeyRelease(VK_NUMPAD6);
+			WaitForKeyRelease(VK_F2);
 			system("cls");
-			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
+			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 			break;
 		}
 	}
@@ -788,11 +764,10 @@ void ToggleFishEye()
 
 		Settings* settings = reinterpret_cast<Settings*>(settingsPtr);
 		originalPlayerFovValue = settings->PlayerFOV;
-		originalGunFovValue = settings->GunFOV;
 	}
-	WaitForKeyRelease(VK_NUMPAD7);
+	WaitForKeyRelease(VK_F6);
 	system("cls");
-	showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
+	showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 }
 
 void MaintainFishEye()
@@ -806,38 +781,19 @@ void MaintainFishEye()
 		bool valid = settingsPtr && !IsBadReadPtr(reinterpret_cast<void*>(settingsPtr), sizeof(Settings));
 
 		if (!valid)
-		{
-			if (invalidStartTime == 0)
-			{
-				invalidStartTime = GetTickCount64(); // start the "invalid" timer
-			}
-			else if (GetTickCount64() - invalidStartTime >= 2000) // completely irrelevant as this memory region never becomes invalid, but I honestly can not be asked removing it.
-			{
-				fishEyeEnabled = false;
-				system("cls");
-				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
-				break;
-			}
 			continue;
-		}
-		else
-		{
-			invalidStartTime = 0; // reset timer if memory becomes valid again
-		}
 
 		Settings* settings = reinterpret_cast<Settings*>(settingsPtr);
-		settings->PlayerFOV = 1.8;
-		settings->GunFOV = 1.8;
+		settings->PlayerFOV = 2.6;
 
 
-		if (GetAsyncKeyState(VK_NUMPAD7) & 0x8000)
+		if (GetAsyncKeyState(VK_F6) & 0x8000)
 		{
 			fishEyeEnabled = false;
 			settings->PlayerFOV = originalPlayerFovValue;
-			settings->GunFOV = originalGunFovValue;
-			WaitForKeyRelease(VK_NUMPAD7);
+			WaitForKeyRelease(VK_F6);
 			system("cls");
-			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
+			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 			break;
 		}
 	}
@@ -854,41 +810,370 @@ void HandleGunCaliber()
 		bool valid = caliberPtr && !IsBadReadPtr(reinterpret_cast<void*>(caliberPtr), sizeof(CCurrentWeaponCaliber));
 
 		if (!valid)
-		{
-			if (invalidStartTime == 0)
-				invalidStartTime = GetTickCount64();
-			else if (GetTickCount64() - invalidStartTime >= 2000)
-			{
-				gunCaliberIndex = 0;
-				system("cls");
-				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
-				break;
-			}
 			continue;
-		}
-		else
-		{
-			invalidStartTime = 0;
-		}
 
 		CCurrentWeaponCaliber* gunCaliber = reinterpret_cast<CCurrentWeaponCaliber*>(caliberPtr);
 		gunCaliber->GunCaliber = gunCaliberModes[gunCaliberIndex];
 
 		// Check for NUMPAD9 to cycle
-		if (GetAsyncKeyState(VK_NUMPAD9) & 0x8000)
+		if (GetAsyncKeyState(VK_NUMPAD7) & 0x8000)
 		{
-			WaitForKeyRelease(VK_NUMPAD9);
+			WaitForKeyRelease(VK_NUMPAD7);
 			gunCaliberIndex++;
 			if (gunCaliberIndex >= 5)
 			{
 				gunCaliberIndex = 0;
 				gunCaliber->GunCaliber = gunCaliberModes[gunCaliberIndex];
 				system("cls");
-				showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
+				showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
 				break;
 			}
 			system("cls");
-			showMenu(noRecoilEnabled, fireRateEnabled, infiniteAmmoEnabled, powerfulAmmoEnabled, noSpreadEnabled, movementSpeedEnabled, fishEyeEnabled, glowEspEnabled, runShootEnabled, boltScriptEnabled, skyBoxEnabled, infiniteGadgetEnabled, goOutsideEnabled, gunCaliberIndex);
+			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
+		}
+	}
+}
+
+void ToggleKnifeDistance()
+{
+	knifeDistanceEnabled = !knifeDistanceEnabled;
+	if (knifeDistanceEnabled)
+	{
+		uintptr_t knifePtr = GetPointer(baseAddress, offsets::Knife);
+		if (!knifePtr || IsBadReadPtr(reinterpret_cast<void*>(knifePtr), sizeof(Knife)))
+		{
+			knifeDistanceEnabled = false;
+			return;
+		}
+	}
+	WaitForKeyRelease(VK_NUMPAD9);
+	system("cls");
+	showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
+}
+
+void MaintainKnifeDistance()
+{
+	ULONGLONG invalidStartTime = 0;
+
+	while (knifeDistanceEnabled && !GetAsyncKeyState(VK_NUMPAD0))
+	{
+		Sleep(10);
+		uintptr_t knifePtr = GetPointer(baseAddress, offsets::Knife);
+		bool valid = knifePtr && !IsBadReadPtr(reinterpret_cast<void*>(knifePtr), sizeof(Knife));
+
+		if (!valid)
+		{
+			knifeDistanceEnabled = false;
+			system("cls");
+			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
+			break;
+		}
+
+		Knife* knife = reinterpret_cast<Knife*>(knifePtr);
+		if (knife->knifeDistancePlayers == 1.3f)
+			knife->knifeDistancePlayers = 9999.000f;
+		if (knife->knifeDistanceWalls == 1.3f)
+			knife->knifeDistanceWalls = 9999.000f;
+
+
+		if (GetAsyncKeyState(VK_NUMPAD9) & 0x8000)
+		{
+			knifeDistanceEnabled = false;
+			knife->knifeDistancePlayers = 1.3f;
+			knife->knifeDistanceWalls = 1.3f;
+			WaitForKeyRelease(VK_NUMPAD9);
+			system("cls");
+			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
+			break;
+		}
+	}
+}
+
+void ToggleGodMode()
+{
+	godModeEnabled = !godModeEnabled;
+	if (godModeEnabled)
+	{
+		uintptr_t healthPtr = GetPointer(baseAddress, offsets::GodMode);
+		if (!healthPtr || IsBadReadPtr(reinterpret_cast<void*>(healthPtr), sizeof(Health)))
+		{
+			godModeEnabled = false;
+			return;
+		}
+	}
+	WaitForKeyRelease(VK_F1);
+	system("cls");
+	showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
+}
+
+void MaintainGodMode()
+{
+	ULONGLONG invalidStartTime = 0;
+
+	while (godModeEnabled && !GetAsyncKeyState(VK_NUMPAD0))
+	{
+		Sleep(10);
+		uintptr_t healthPtr = GetPointer(baseAddress, offsets::GodMode);
+		bool valid = healthPtr && !IsBadReadPtr(reinterpret_cast<void*>(healthPtr), sizeof(Health));
+
+		if (!valid)
+			continue;
+
+		Health* health = reinterpret_cast<Health*>(healthPtr);
+		health->Health = 9999;
+
+
+		if (GetAsyncKeyState(VK_F1) & 0x8000)
+		{
+			godModeEnabled = false;
+			health->Health = 120;
+			WaitForKeyRelease(VK_F1);
+			system("cls");
+			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
+			break;
+		}
+	}
+}
+
+void ToggleNoClip()
+{
+	noClipEnabled = !noClipEnabled;
+	if (noClipEnabled)
+	{
+		uintptr_t noClipPtr = GetPointer(baseAddress, offsets::NoClip);
+		if (!noClipPtr || IsBadReadPtr(reinterpret_cast<void*>(noClipPtr), sizeof(CNoClip)))
+		{
+			noClipEnabled = false;
+			return;
+		}
+		CNoClip* noClip = reinterpret_cast<CNoClip*>(noClipPtr);
+		originalNoClipValue = noClip->NoClip;
+	}
+	WaitForKeyRelease(VK_F3);
+	system("cls");
+	showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
+}
+
+void MaintainNoClip()
+{
+	ULONGLONG invalidStartTime = 0;
+
+	while (noClipEnabled && !GetAsyncKeyState(VK_NUMPAD0))
+	{
+		Sleep(10);
+		uintptr_t noClipPtr = GetPointer(baseAddress, offsets::NoClip);
+		bool valid = noClipPtr && !IsBadReadPtr(reinterpret_cast<void*>(noClipPtr), sizeof(CNoClip));
+
+		if (!valid)
+			continue;
+
+		CNoClip* noClip = reinterpret_cast<CNoClip*>(noClipPtr);
+		noClip->NoClip = -1;
+
+
+		if (GetAsyncKeyState(VK_F3) & 0x8000)
+		{
+			noClipEnabled = false;
+			noClip->NoClip = originalNoClipValue;
+			WaitForKeyRelease(VK_F3);
+			system("cls");
+			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
+			break;
+		}
+	}
+}
+
+void ToggleDroneSpeed()
+{
+	droneSpeedEnabled = !droneSpeedEnabled;
+	if (droneSpeedEnabled)
+	{
+		uintptr_t drone3Ptr = GetPointer(baseAddress, offsets::Drone3);
+		if (!drone3Ptr || IsBadReadPtr(reinterpret_cast<void*>(drone3Ptr), sizeof(CDrone3)))
+		{
+			droneSpeedEnabled = false;
+			return;
+		}
+	}
+	WaitForKeyRelease(VK_F10);
+	system("cls");
+	showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
+}
+
+void MaintainDroneSpeed()
+{
+	ULONGLONG invalidStartTime = 0;
+
+	while (droneSpeedEnabled && !GetAsyncKeyState(VK_NUMPAD0))
+	{
+		Sleep(10);
+		uintptr_t drone3Ptr = GetPointer(baseAddress, offsets::Drone3);
+		bool valid = drone3Ptr && !IsBadReadPtr(reinterpret_cast<void*>(drone3Ptr), sizeof(CDrone3));
+
+		if (!valid)
+			continue;
+
+		CDrone3* drone3 = reinterpret_cast<CDrone3*>(drone3Ptr);
+		drone3->DroneTopSpeed = 10;
+		drone3->DroneAcceleration = 100;
+
+
+		if (GetAsyncKeyState(VK_F10) & 0x8000)
+		{
+			droneSpeedEnabled = false;
+			drone3->DroneTopSpeed = 3.5;
+			drone3->DroneAcceleration = 4;
+			WaitForKeyRelease(VK_F10);
+			system("cls");
+			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
+			break;
+		}
+	}
+}
+
+void ToggleDroneGravity()
+{
+	droneGravityEnabled = !droneGravityEnabled;
+	if (droneGravityEnabled)
+	{
+		uintptr_t drone2Ptr = GetPointer(baseAddress, offsets::Drone2);
+		if (!drone2Ptr || IsBadReadPtr(reinterpret_cast<void*>(drone2Ptr), sizeof(CDrone2)))
+		{
+			droneGravityEnabled = false;
+			return;
+		}
+	}
+	WaitForKeyRelease(VK_F9);
+	system("cls");
+	showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
+}
+
+void MaintainDroneGravity()
+{
+	ULONGLONG invalidStartTime = 0;
+
+	while (droneGravityEnabled && !GetAsyncKeyState(VK_NUMPAD0))
+	{
+		Sleep(10);
+		uintptr_t drone2Ptr = GetPointer(baseAddress, offsets::Drone2);
+		bool valid = drone2Ptr && !IsBadReadPtr(reinterpret_cast<void*>(drone2Ptr), sizeof(CDrone2));
+
+		if (!valid)
+			continue;
+
+		CDrone2* drone2 = reinterpret_cast<CDrone2*>(drone2Ptr);
+		drone2->DroneGravity = 0;
+
+
+		if (GetAsyncKeyState(VK_F9) & 0x8000)
+		{
+			droneGravityEnabled = false;
+			drone2->DroneGravity = -9.800;
+			WaitForKeyRelease(VK_F9);
+			system("cls");
+			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
+			break;
+		}
+	}
+}
+
+void ToggleTwitchBuff()
+{
+	twitchBuffEnabled = !twitchBuffEnabled;
+	if (twitchBuffEnabled)
+	{
+		uintptr_t drone1Ptr = GetPointer(baseAddress, offsets::Drone1);
+		uintptr_t drone2Ptr = GetPointer(baseAddress, offsets::Drone2);
+		if (!drone1Ptr || !drone2Ptr  || IsBadReadPtr(reinterpret_cast<void*>(drone1Ptr), sizeof(CDrone1)) || IsBadReadPtr(reinterpret_cast<void*>(drone2Ptr), sizeof(CDrone2)))
+		{
+			twitchBuffEnabled = false;
+			return;
+		}
+	}
+	WaitForKeyRelease(VK_F11);
+	system("cls");
+	showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
+}
+
+void MaintainTwitchBuff()
+{
+	ULONGLONG invalidStartTime = 0;
+
+	while (twitchBuffEnabled && !GetAsyncKeyState(VK_NUMPAD0))
+	{
+		Sleep(10);
+		uintptr_t drone1Ptr = GetPointer(baseAddress, offsets::Drone1);
+		uintptr_t drone2Ptr = GetPointer(baseAddress, offsets::Drone2);
+		bool valid = drone1Ptr && drone2Ptr && !IsBadReadPtr(reinterpret_cast<void*>(drone1Ptr), sizeof(CDrone1)) && !IsBadReadPtr(reinterpret_cast<void*>(drone2Ptr), sizeof(CDrone2));
+
+		if (!valid)
+			continue;
+
+		CDrone1* drone1 = reinterpret_cast<CDrone1*>(drone1Ptr);
+		CDrone2* drone2 = reinterpret_cast<CDrone2*>(drone2Ptr);
+		drone1->DroneJump = 2;
+		drone1->DroneJumpDelay = 0;
+		drone1->DroneMaxAmmo = 2;
+		drone1->DroneWeaponReach = 999;
+		drone2->DroneAmmo = 1;
+
+
+		if (GetAsyncKeyState(VK_F11) & 0x8000)
+		{
+			twitchBuffEnabled = false;
+			drone1->DroneJump = 0;
+			drone1->DroneJumpDelay = 2;
+			drone1->DroneMaxAmmo = 3;
+			drone1->DroneWeaponReach = 7;
+			drone2->DroneAmmo = 0;
+			WaitForKeyRelease(VK_F11);
+			system("cls");
+			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
+			break;
+		}
+	}
+}
+
+void ToggleLockWave()
+{
+	lockWaveEnabled = !lockWaveEnabled;
+	if (lockWaveEnabled)
+	{
+		uintptr_t wavePtr = GetPointer(baseAddress, offsets::THuntWave);
+		if (!wavePtr || IsBadReadPtr(reinterpret_cast<void*>(wavePtr), sizeof(CThuntWave)))
+		{
+			lockWaveEnabled = false;
+			return;
+		}
+	}
+	WaitForKeyRelease(VK_PRIOR);
+	system("cls");
+	showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
+}
+
+void MaintainLockWave()
+{
+	ULONGLONG invalidStartTime = 0;
+
+	while (lockWaveEnabled && !GetAsyncKeyState(VK_NUMPAD0))
+	{
+		Sleep(10);
+		uintptr_t wavePtr = GetPointer(baseAddress, offsets::THuntWave);
+		bool valid = wavePtr && !IsBadReadPtr(reinterpret_cast<void*>(wavePtr), sizeof(CThuntWave));
+
+		if (!valid)
+			continue;
+
+		CThuntWave* thuntWave = reinterpret_cast<CThuntWave*>(wavePtr);
+
+		thuntWave->CurrentWave = 0;
+
+		if (GetAsyncKeyState(VK_PRIOR) & 0x8000)
+		{
+			WaitForKeyRelease(VK_PRIOR);
+			system("cls");
+			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
+			break;
 		}
 	}
 }
