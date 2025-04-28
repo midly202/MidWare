@@ -16,7 +16,7 @@ The CLI shows the current status of all toggles (ON/OFF) and updates live as hot
 ## 🔧 Features
 
 | Keybind      | Feature                 | Description                                                                                   |
-|-------------:|-------------------------|-----------------------------------------------------------------------------------------------|
+|:-------------|-------------------------|-----------------------------------------------------------------------------------------------|
 | **MISC**     |                         |                                                                                               |
 | [N/A]        | Unlock All              | Automatically unlocks all skins, attachment skins, headgears, and uniforms.                   |
 | [NUM0]       | Uninject                | Safely removes the DLL and instructs the loader to terminate the executable.                  |
