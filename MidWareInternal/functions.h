@@ -784,7 +784,7 @@ void MaintainFishEye()
 			continue;
 
 		Settings* settings = reinterpret_cast<Settings*>(settingsPtr);
-		settings->PlayerFOV = 2.4;
+		settings->PlayerFOV = 2.2;
 
 
 		if (GetAsyncKeyState(VK_F6) & 0x8000)
