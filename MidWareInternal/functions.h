@@ -735,7 +735,7 @@ void MaintainMovementSpeed()
 			continue;
 
 		CPlayer* player = reinterpret_cast<CPlayer*>(playerPtr);
-		player->PlayerSpeed = 250;
+		player->PlayerSpeed = 200;
 
 
 		if (GetAsyncKeyState(VK_F2) & 0x8000)
