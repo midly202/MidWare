@@ -102,7 +102,7 @@ int APIENTRY WinMain(
 		else if (pFlags->infGadget)
 		{
 			InfiniteSecondaryGadgets();
-			pFlags->infGadget = false;
+            pFlags->infGadget = false;
 		}
 		else if (pFlags->goOutside)
 		{
