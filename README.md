@@ -50,6 +50,17 @@ The CLI shows the current status of all toggles (ON/OFF) and updates live as hot
 
 ---
 
+## ⚠️ Important Notes
+
+- `Knife Reach` may cause instability or crashes in some situations.
+- `Third Person` may cause instability or crashes in some situations.
+- `NoClip` removes collision for ALL entities, this means:
+  -	You risk falling through the map if you're not careful.
+  -	You can go outside during prep phase.
+  -	Drones, grenades, and the defuser will fall through the map. This means if you plant with `NoClip` on, it causes instant round loss.
+
+---
+
 ## 📦 Setup Instructions
 
 1. Compile both the **internal DLL** and the **external loader**, or get them from the Release tab.
