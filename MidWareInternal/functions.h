@@ -493,19 +493,16 @@ void ToggleFireRate()
 	if (fireRateEnabled)
 	{
 		uintptr_t weaponPtr1 = GetPointer(baseAddress, offsets::WeaponComponent);
-		uintptr_t weaponPtr2 = GetPointer(baseAddress, offsets::CCurrentWeapon2);
 		uintptr_t weaponPtr3 = GetPointer(baseAddress, offsets::CCurrentWeapon3);
-		if (!weaponPtr1 || IsBadReadPtr(reinterpret_cast<void*>(weaponPtr1), sizeof(WeaponComponent)) || !weaponPtr2 || IsBadReadPtr(reinterpret_cast<void*>(weaponPtr2), sizeof(CCurrentWeapon2)) || !weaponPtr3 || IsBadReadPtr(reinterpret_cast<void*>(weaponPtr3), sizeof(CCurrentWeapon3)))
+		if (!weaponPtr1 || IsBadReadPtr(reinterpret_cast<void*>(weaponPtr1), sizeof(WeaponComponent)) || !weaponPtr3 || IsBadReadPtr(reinterpret_cast<void*>(weaponPtr3), sizeof(CCurrentWeapon3)))
 		{
 			fireRateEnabled = false;
 			return;
 		}
 
 		WeaponComponent* currentWeapon1 = reinterpret_cast<WeaponComponent*>(weaponPtr1);
-		CCurrentWeapon2* currentWeapon2 = reinterpret_cast<CCurrentWeapon2*>(weaponPtr2);
 		CCurrentWeapon3* currentWeapon3 = reinterpret_cast<CCurrentWeapon3*>(weaponPtr3);
 		originalFireModeValue = currentWeapon1->gunFireMode;
-		originalGunSoundValue = currentWeapon2->gunSound;
 		originalFirerateValue = currentWeapon3->GunFireRate;
 	}
 	WaitForKeyRelease(VK_NUMPAD2);
@@ -521,16 +518,14 @@ void MaintainFireRate()
 	{
 		Sleep(10);
 		uintptr_t weaponPtr1 = GetPointer(baseAddress, offsets::WeaponComponent);
-		uintptr_t weaponPtr2 = GetPointer(baseAddress, offsets::CCurrentWeapon2);
 		uintptr_t weaponPtr3 = GetPointer(baseAddress, offsets::CCurrentWeapon3);
 
-		bool valid = weaponPtr1 && weaponPtr2 && weaponPtr3;
+		bool valid = weaponPtr1 && weaponPtr3;
 
 		if (!valid)
 			continue;
 
 		WeaponComponent* currentWeapon1 = reinterpret_cast<WeaponComponent*>(weaponPtr1);
-		CCurrentWeapon2* currentWeapon2 = reinterpret_cast<CCurrentWeapon2*>(weaponPtr2);
 		CCurrentWeapon3* currentWeapon3 = reinterpret_cast<CCurrentWeapon3*>(weaponPtr3);
 		if (currentWeapon1->gunFireMode != 0)
 			currentWeapon1->gunFireMode = 0;
@@ -545,7 +540,6 @@ void MaintainFireRate()
 			WaitForKeyRelease(VK_NUMPAD2);
 			fireRateEnabled = false;
 			currentWeapon1->gunFireMode = originalFireModeValue;
-			currentWeapon2->gunSound = originalGunSoundValue;
 			currentWeapon3->GunFireRate = originalFirerateValue;
 			system("cls");
 			showMenu(infiniteAmmoEnabled, fireRateEnabled, noRecoilEnabled, noSpreadEnabled, powerfulAmmoEnabled, runShootEnabled, gunCaliberIndex, boltScriptEnabled, knifeDistanceEnabled, godModeEnabled, movementSpeedEnabled, noClipEnabled, infiniteGadgetEnabled, glowEspEnabled, fishEyeEnabled, skyBoxEnabled, thirdPersonEnabled, droneSpeedEnabled, droneGravityEnabled, twitchBuffEnabled, lockWaveEnabled, goOutsideEnabled);
