@@ -534,8 +534,8 @@ void MaintainFireRate()
 		CCurrentWeapon3* currentWeapon3 = reinterpret_cast<CCurrentWeapon3*>(weaponPtr3);
 		if (currentWeapon1->gunFireMode != 0)
 			currentWeapon1->gunFireMode = 0;
-		if (currentWeapon2->gunSound != 0)
-			currentWeapon2->gunSound = 0;
+		/*if (currentWeapon2->gunSound != 0) <-- This works in t-hunt, and avoids being deafened by the gun, but will crash multiplayer games, host or not.
+			currentWeapon2->gunSound = 0;*/
 		if (currentWeapon3->GunFireRate != 9999)
 			currentWeapon3->GunFireRate = 9999;
 
